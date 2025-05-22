@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Firebase Veri İçe Aktarma</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="./firebase-config.js"></script>
+  <script>
+    let firms = [], scales = [];
+
+    function handleFiles(event, type) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = JSON.parse(e.target.result);
+        if (type === 'firms') firms = data;
+        if (type === 'scales') scales = data;
+        alert(`${type} verisi yüklendi: ${data.length} kayıt`);
+      };
+      reader.readAsText(event.target.files[0]);
+    }
+
+    async function uploadData() {
+      const db = firebase.firestore();
+      const user = firebase.auth().currentUser;
+      if (!user) return alert("Giriş yapılmamış!");
+
+      const firmMap = {};
+      for (const firma of firms) {
+        const ref = db.collection("users").doc(user.uid).collection("firms").doc(firma.firma_id);
+        await ref.set(firma);
+        firmMap[firma.firma_id] = true;
+      }
+
+      for (const t of scales) {
+        if (!firmMap[t.firma_id]) continue;
+        const ref = db.collection("users").doc(user.uid)
+          .collection("firms").doc(t.firma_id)
+          .collection("scales").doc(t.seri_no);
+        await ref.set(t);
+      }
+
+      alert("Tüm veriler başarıyla yüklendi ✅");
+    }
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) firebase.auth().signInAnonymously();
+    });
+  </script>
+</head>
+<body class="font-sans p-8 bg-gray-100 text-gray-800">
+  <h1 class="text-2xl font-bold mb-4">🔥 Firebase'e Veri Aktar</h1>
+
+  <div class="mb-4">
+    <label class="block font-medium mb-1">Müşteri Verisi (firmalar.json):</label>
+    <input type="file" accept=".json" onchange="handleFiles(event, 'firms')">
+  </div>
+
+  <div class="mb-4">
+    <label class="block font-medium mb-1">Tartı Aleti Verisi (tartilar.json):</label>
+    <input type="file" accept=".json" onchange="handleFiles(event, 'scales')">
+  </div>
+
+  <button onclick="uploadData()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
+    Yüklemeyi Başlat 🚀
+  </button>
+</body>
+</html>
