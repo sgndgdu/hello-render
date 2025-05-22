@@ -33,13 +33,27 @@
       <h3 class="text-xl font-semibold text-green-700 mb-2">Temel Bilgiler</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <input id="seriNo" placeholder="Seri No *" class="input">
-        <input id="marka" placeholder="Marka *" class="input">
-        <input id="model" placeholder="Model *" class="input">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="text-sm text-gray-700">Marka</label>
+            <input list="markaList" id="marka" placeholder="Marka girin veya seçin" class="input" onchange="loadModeller()">
+            <datalist id="markaList"></datalist>
+          </div>
+          <div>
+          <label class="text-sm text-gray-700">Model</label>
+          <input list="modelList" id="model" placeholder="Model girin veya seçin" class="input" onchange="loadTipOnaylari()">
+          <datalist id="modelList"></datalist>
+          </div>
         <input id="modelKodu" placeholder="Model Kodu *" class="input">
         <input id="maxKapasite" placeholder="Max Kapasite *" class="input">
         <input id="taksimat" placeholder="Taksimat" class="input">
         <input id="uretimYili" type="number" placeholder="Üretim Yılı *" class="input">
-        <input id="tipOnayNo" placeholder="Tip Onay Numarası" class="input">
+             <div>
+             <label class="text-sm text-gray-700">Tip Onay No</label>
+              <input list="tipOnayList" id="tipOnayNo" placeholder="Tip Onay No girin veya seçin" class="input">
+              <datalist id="tipOnayList"></datalist>
+            </div>
+          </div>
         <input id="kullanimAmaci" placeholder="Kullanım Amacı" class="input">
       </div>
     </div>
@@ -207,6 +221,54 @@
         alert("Hata: " + err.message);
       });
   }
+// Dinamik Marka/Model/Tip Onay Listeleri
+let markaVerileri = {}, modelVerileri = {};
+
+firebase.firestore().collection("scale_metadata").doc("brand_model_map").get().then(doc => {
+  if (doc.exists) {
+    const data = doc.data();
+    markaVerileri = data || {};
+    const markaListesi = Object.keys(markaVerileri);
+    const markaList = document.getElementById("markaList");
+    markaList.innerHTML = "";
+    markaListesi.forEach(marka => {
+      const option = document.createElement("option");
+      option.value = marka;
+      markaList.appendChild(option);
+    });
+  }
+});
+
+// Marka seçildiğinde modellere göre güncelle
+function loadModeller() {
+  const marka = document.getElementById("marka").value.trim();
+  const modelList = document.getElementById("modelList");
+  modelList.innerHTML = "";
+  if (markaVerileri[marka]) {
+    const modeller = Object.keys(markaVerileri[marka]);
+    modeller.forEach(model => {
+      const option = document.createElement("option");
+      option.value = model;
+      modelList.appendChild(option);
+    });
+  }
+}
+
+// Model seçildiğinde tip onayları getir
+  function loadTipOnaylari() {
+  const marka = document.getElementById("marka").value.trim();
+  const model = document.getElementById("model").value.trim();
+  const tipList = document.getElementById("tipOnayList");
+  tipList.innerHTML = "";
+  if (markaVerileri[marka] && markaVerileri[marka][model]) {
+    const tipler = markaVerileri[marka][model];
+    tipler.forEach(tip => {
+      const option = document.createElement("option");
+      option.value = tip;
+      tipList.appendChild(option);
+    });
+  }
+}
 </script>
 
   <style>
