@@ -43,7 +43,9 @@
     }
 
     firebase.auth().onAuthStateChanged(user => {
-      if (!user) firebase.auth().signInAnonymously();
+      if (!user || user.providerData.length === 0) {
+    window.location.href = "login.html";
+      }
     });
   </script>
 </head>
