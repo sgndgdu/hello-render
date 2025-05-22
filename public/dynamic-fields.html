@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Dinamik Alanlar Testi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="./firebase-config.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-10">
+  <div class="max-w-2xl mx-auto bg-white p-6 rounded shadow">
+    <h2 class="text-xl font-bold mb-4 text-gray-700">Marka / Model / Tip No Dinamik Testi</h2>
+
+    <!-- Marka -->
+    <label class="block mb-1 font-medium">Marka</label>
+    <input list="markalar" id="marka" placeholder="Marka girin veya seçin" class="input mb-4 w-full">
+    <datalist id="markalar"></datalist>
+
+    <!-- Model -->
+    <label class="block mb-1 font-medium">Model</label>
+    <input list="modeller" id="model" placeholder="Model girin veya seçin" class="input mb-4 w-full">
+    <datalist id="modeller"></datalist>
+
+    <!-- Tip Onay No -->
+    <label class="block mb-1 font-medium">Tip Onay No</label>
+    <input list="tipOnaylar" id="tipOnayNo" placeholder="Tip onay numarası girin veya seçin" class="input mb-4 w-full">
+    <datalist id="tipOnaylar"></datalist>
+
+    <button onclick="kaydet()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Kaydet</button>
+    <p id="sonuc" class="mt-4 text-sm text-green-600 font-medium"></p>
+  </div>
+
+  <script>
+    const db = firebase.firestore();
+
+    firebase.auth().onAuthStateChanged(async user => {
+      if (!user) return alert("Giriş yapılmamış!");
+
+      const markaSnap = await db.collection("brands").get();
+      const markaDatalist = document.getElementById("markalar");
+      markaSnap.forEach(doc => {
+        const opt = document.createElement("option");
+        opt.value = doc.id;
+        markaDatalist.appendChild(opt);
+      });
+    });
+
+    // Marka seçildiğinde modelleri getir
+    document.getElementById("marka").addEventListener("input", async () => {
+      const marka = document.getElementById("marka").value.trim();
+      const modelList = document.getElementById("modeller");
+      modelList.innerHTML = "";
+      document.getElementById("tipOnaylar").innerHTML = "";
+      if (!marka) return;
+
+      const doc = await db.collection("brands").doc(marka).get();
+      if (doc.exists && doc.data().models) {
+        doc.data().models.forEach(model => {
+          const opt = document.createElement("option");
+          opt.value = model;
+          modelList.appendChild(opt);
+        });
+      }
+    });
+
+    // Model seçildiğinde tip onayları getir
+    document.getElementById("model").addEventListener("input", async () => {
+      const marka = document.getElementById("marka").value.trim();
+      const model = document.getElementById("model").value.trim();
+      const tipList = document.getElementById("tipOnaylar");
+      tipList.innerHTML = "";
+      if (!marka || !model) return;
+
+      const doc = await db.collection("brands").doc(marka).get();
+      if (doc.exists && doc.data().modelDetails && doc.data().modelDetails[model]) {
+        doc.data().modelDetails[model].tipler.forEach(tip => {
+          const opt = document.createElement("option");
+          opt.value = tip;
+          tipList.appendChild(opt);
+        });
+      }
+    });
+
+    async function kaydet() {
+      const marka = document.getElementById("marka").value.trim();
+      const model = document.getElementById("model").value.trim();
+      const tipOnay = document.getElementById("tipOnayNo").value.trim();
+
+      if (!marka || !model || !tipOnay) {
+        alert("Lütfen tüm alanları doldurun.");
+        return;
+      }
+
+      const markaRef = db.collection("brands").doc(marka);
+      const markaDoc = await markaRef.get();
+
+      if (!markaDoc.exists) {
+        await markaRef.set({ models: [model], modelDetails: { [model]: { tipler: [tipOnay] } } });
+      } else {
+        const data = markaDoc.data();
+        const modeller = data.models || [];
+        const modelDetails = data.modelDetails || {};
+
+        if (!modeller.includes(model)) modeller.push(model);
+        if (!modelDetails[model]) modelDetails[model] = { tipler: [] };
+        if (!modelDetails[model].tipler.includes(tipOnay)) modelDetails[model].tipler.push(tipOnay);
+
+        await markaRef.set({ models: modeller, modelDetails: modelDetails });
+      }
+
+      document.getElementById("sonuc").textContent = "Veriler başarıyla kaydedildi ✅";
+    }
+  </script>
+
+  <style>
+    .input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+  </style>
+</body>
+</html>
