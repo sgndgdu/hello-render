@@ -24,11 +24,20 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  <script src="./firebase-config.js"></script>
-
   <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     let tumScaleler = [];
+    let filtrelenmisScaleler = [];
     let gosterilen = 0;
     const sayfaBoyutu = 5;
 
@@ -36,19 +45,21 @@
       if (!user) {
         window.location.href = "login.html";
       } else {
-        db.collection("users").doc(user.uid).collectionGroup("scales")
+        db.collectionGroup("scales")
           .get()
           .then(snapshot => {
             tumScaleler = snapshot.docs.map(doc => doc.data());
+            filtrelenmisScaleler = [...tumScaleler];
             listele();
-          });
+          })
+          .catch(err => console.error("Veri çekme hatası:", err));
       }
     });
 
     function listele() {
       const liste = document.getElementById("scaleListesi");
       liste.innerHTML = "";
-      const parca = tumScaleler.slice(gosterilen, gosterilen + sayfaBoyutu);
+      const parca = filtrelenmisScaleler.slice(gosterilen, gosterilen + sayfaBoyutu);
 
       if (parca.length === 0) {
         liste.innerHTML = "<li class='text-gray-600'>Kayıtlı tartı aleti yok.</li>";
@@ -68,18 +79,17 @@
 
     function filtrele() {
       const arama = document.getElementById("searchInput").value.trim().toLowerCase();
-      const filtrelenmis = tumScaleler.filter(scale =>
+      filtrelenmisScaleler = tumScaleler.filter(scale =>
         scale.seriNo?.toLowerCase().includes(arama) ||
         scale.marka?.toLowerCase().includes(arama) ||
         scale.model?.toLowerCase().includes(arama)
       );
       gosterilen = 0;
-      tumScaleler = filtrelenmis;
       listele();
     }
 
     function ileriSayfa() {
-      if (gosterilen + sayfaBoyutu < tumScaleler.length) {
+      if (gosterilen + sayfaBoyutu < filtrelenmisScaleler.length) {
         gosterilen += sayfaBoyutu;
         listele();
       }
