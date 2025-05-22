@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Panel</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="./firebase-config.js"></script>
+</head>
+<body>
+  <h2>Kontrol Paneli</h2>
+  <p id="welcome-message">Yükleniyor...</p>
+  <button onclick="logout()">Çıkış Yap</button>
+
+  <script>
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        document.getElementById("welcome-message").innerText = `Hoş geldin, ${user.email}`;
+      } else {
+        // Giriş yapılmamışsa login sayfasına yönlendir
+        window.location.href = "login.html";
+      }
+    });
+
+    function logout() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "login.html";
+      });
+    }
+  </script>
+</body>
+</html>
