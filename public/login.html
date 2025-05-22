@@ -24,27 +24,28 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="./firebase-config.js"></script>
 
-  <script>
-    function login() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+<script>
+  function login() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-      firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
       .then(() => {
         return firebase.auth().signInWithEmailAndPassword(email, password);
-          })
-        .then((userCredential) => {
-      // Başarılı giriş
-      alert("Giriş başarılı!");
+      })
+      .then((userCredential) => {
+        // Başarılı giriş
+        alert("Giriş başarılı!");
         window.location.href = "dashboard.html";
-        })
-  .catch((error) => {
-    alert("Hata: " + error.message);
-  });
+      })
+      .catch((error) => {
+        alert("Hata: " + error.message);
+      });
+  }
 
-    function goToRegister() {
-      window.location.href = "register.html";
-    }
-  </script>
+  function goToRegister() {
+    window.location.href = "register.html";
+  }
+</script>
 </body>
 </html>
