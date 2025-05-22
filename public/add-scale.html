@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Tartı Aleti Ekle</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 py-10">
+  <div class="max-w-5xl mx-auto bg-white p-8 rounded shadow">
+    <h2 class="text-2xl font-bold text-green-700 mb-6">Tartı Aleti Ekle</h2>
+
+    <!-- Temel Bilgiler -->
+    <div class="mb-6 border rounded p-6 bg-green-50">
+      <h3 class="text-xl font-semibold text-green-700 mb-2">Temel Bilgiler</h3>
+      <p class="text-sm text-gray-600 mb-4">Tartı aletinin marka, model, seri numarası gibi temel bilgilerini giriniz.</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <input id="seriNo" placeholder="Seri No *" class="input" required>
+        <input id="marka" placeholder="Marka *" class="input">
+        <input id="model" placeholder="Model *" class="input">
+        <input id="modelKodu" placeholder="Model Kodu *" class="input">
+        <input id="maxKapasite" placeholder="Max Kapasite *" class="input">
+        <input id="taksimat" placeholder="Taksimat" class="input">
+        <input id="uretimYili" type="number" placeholder="Üretim Yılı *" class="input">
+        <input id="tipOnayNo" placeholder="Tip Onay Numarası" class="input">
+        <input id="kullanimAmaci" placeholder="Kullanım Amacı" class="input">
+      </div>
+    </div>
+
+    <!-- Buton -->
+    <div class="text-center mt-6">
+      <button onclick="saveScale()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Kaydet</button>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="./firebase-config.js"></script>
+
+  <script>
+    const db = firebase.firestore();
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = "login.html";
+      }
+    });
+
+    function saveScale() {
+      const user = firebase.auth().currentUser;
+      if (!user) return;
+
+      const seriNo = document.getElementById("seriNo").value.trim();
+      const firmaId = prompt("Bu tartı aleti hangi firmaya ait? Firma ID'sini girin:"); // geçici ilişkilendirme
+
+      const scaleData = {
+        seriNo,
+        marka: document.getElementById("marka").value.trim(),
+        model: document.getElementById("model").value.trim(),
+        modelKodu: document.getElementById("modelKodu").value.trim(),
+        maxKapasite: document.getElementById("maxKapasite").value.trim(),
+        taksimat: document.getElementById("taksimat").value.trim(),
+        uretimYili: document.getElementById("uretimYili").value.trim(),
+        tipOnayNo: document.getElementById("tipOnayNo").value.trim(),
+        kullanimAmaci: document.getElementById("kullanimAmaci").value.trim(),
+        createdAt: new Date()
+      };
+
+      // Müşteriye bağlı olarak scales koleksiyonuna kaydet
+      db.collection("users").doc(user.uid).collection("firms").doc(firmaId)
+        .collection("scales").doc(seriNo)
+        .set(scaleData)
+        .then(() => {
+          alert("Tartı aleti başarıyla kaydedildi.");
+          window.location.href = "dashboard.html";
+        })
+        .catch(err => {
+          alert("Hata: " + err.message);
+        });
+    }
+  </script>
+
+  <style>
+    .input {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      width: 100%;
+    }
+  </style>
+</body>
+</html>
