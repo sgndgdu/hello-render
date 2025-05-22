@@ -29,13 +29,16 @@
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
 
-      firebase.auth().createUserWithEmailAndPassword(email, password)
+      firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
         .then(() => {
-          alert("Kayıt başarılı!");
-          window.location.href = "login.html";
+          return firebase.auth().createUserWithEmailAndPassword(email, password);
         })
-        .catch(error => {
-          alert(error.message);
+        .then((userCredential) => {
+          alert("Kayıt başarılı!");
+          window.location.href = "dashboard.html";
+        })
+        .catch((error) => {
+          alert("Hata: " + error.message);
         });
     }
 
