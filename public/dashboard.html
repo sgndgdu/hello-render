@@ -1,22 +1,43 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-  <title>Panel</title>
+  <meta charset="UTF-8">
+  <title>Kontrol Paneli</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <!-- Üst menü -->
+  <header class="bg-white shadow-md p-4 flex justify-between items-center">
+    <h1 class="text-xl font-bold text-gray-800">Kantar CRM</h1>
+    <div class="flex items-center space-x-4">
+      <span id="user-email" class="text-sm text-gray-600">Hoş geldin...</span>
+      <button onclick="logout()" class="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600 text-sm">Çıkış Yap</button>
+    </div>
+  </header>
+
+  <!-- İçerik -->
+  <main class="p-6">
+    <h2 class="text-2xl font-semibold mb-4">Kontrol Paneli</h2>
+    
+    <div class="bg-white p-6 rounded shadow-md">
+      <p class="text-gray-700 mb-4">Buradan müşteri, tartı aleti ve işlem bilgilerini ekleyebilirsiniz.</p>
+      <button onclick="alert('Form kısmı birazdan geliyor 🔧')" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
+        + Müşteri Ekle
+      </button>
+    </div>
+  </main>
+
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="./firebase-config.js"></script>
-</head>
-<body>
-  <h2>Kontrol Paneli</h2>
-  <p id="welcome-message">Yükleniyor...</p>
-  <button onclick="logout()">Çıkış Yap</button>
 
   <script>
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        document.getElementById("welcome-message").innerText = `Hoş geldin, ${user.email}`;
+        document.getElementById("user-email").innerText = `Hoş geldin, ${user.email}`;
       } else {
-        // Giriş yapılmamışsa login sayfasına yönlendir
         window.location.href = "login.html";
       }
     });
