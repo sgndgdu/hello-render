@@ -1,50 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
+  <meta charset="UTF-8">
   <title>Kayıt Ol</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+  <div class="bg-white p-8 rounded shadow-md w-full max-w-sm">
+    <h2 class="text-2xl font-bold mb-6 text-center">Kayıt Ol</h2>
+    
+    <input id="email" type="email" placeholder="Email" class="w-full mb-4 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <input id="password" type="password" placeholder="Şifre" class="w-full mb-4 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+    
+    <button onclick="register()" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded">Kayıt Ol</button>
+    
+    <p class="mt-4 text-center text-sm text-gray-600">
+      Zaten hesabın var mı?
+      <button onclick="goToLogin()" class="text-blue-600 hover:underline">Giriş Yap</button>
+    </p>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="./firebase-config.js"></script>
-</head>
-<body>
-  <h2>Kayıt Ol</h2>
-  <input type="email" id="email" placeholder="Email"><br>
-  <input type="password" id="password" placeholder="Şifre"><br>
-  <button onclick="register()">Kayıt Ol</button>
-  <p>Zaten hesabınız var mı? <button onclick="goToLogin()">Giriş Yap</button></p>
+
   <script>
     function register() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
 
       firebase.auth().createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
+        .then(() => {
           alert("Kayıt başarılı!");
           window.location.href = "login.html";
         })
-        .catch((error) => {
+        .catch(error => {
           alert(error.message);
         });
     }
+
+    function goToLogin() {
+      window.location.href = "login.html";
+    }
   </script>
-  <script>
-  function goToLogin() {
-    window.location.href = "login.html";
-  }
-
-  function register() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-
-    firebase.auth().createUserWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        alert("Kayıt başarılı!");
-        window.location.href = "login.html";
-      })
-      .catch((error) => {
-        alert(error.message);
-      });
-  }
-</script>
 </body>
 </html>
