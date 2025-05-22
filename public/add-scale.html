@@ -86,7 +86,24 @@
         <input id="jboxSeriNo" placeholder="Junction Box Seri No" class="input">
       </div>
     </div>
+<!-- Ek Bilgiler (Not + Etiket + Dosya) -->
+<div class="mb-6 border rounded p-6 bg-slate-50">
+  <h3 class="text-xl font-semibold text-slate-700 mb-2">Ek Bilgiler</h3>
+  <p class="text-sm text-gray-600 mb-4">Tartı aletine özel açıklama, etiket (SKU) ve belge yükleyebilirsiniz.</p>
 
+  <!-- Not -->
+  <label for="ekNot" class="block text-sm font-medium text-gray-700 mb-1">Açıklama / Not</label>
+  <textarea id="ekNot" rows="4" placeholder="Kurulum sahada tamamlandı. 15 ton kapasiteli özel üretim." class="input mb-4"></textarea>
+
+  <!-- Etiket / SKU -->
+  <label for="etiket" class="block text-sm font-medium text-gray-700 mb-1">Etiket (SKU, Kod)</label>
+  <input id="etiket" type="text" placeholder="Örn: TK-ELZ-001" class="input mb-4">
+
+  <!-- Dosya Yükleme -->
+  <label for="dosya" class="block text-sm font-medium text-gray-700 mb-1">Dosya Yükle (PDF / Görsel)</label>
+  <input id="dosya" type="file" class="mb-2">
+  <p class="text-xs text-gray-500">PDF veya görsel yükleyebilirsiniz. Maks. 5 MB.</p>
+</div>
     <!-- Kaydet Butonu -->
     <div class="text-center mt-6">
       <button onclick="saveScale()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Kaydet</button>
@@ -97,67 +114,100 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script src="./firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 
-  <script>
-    const db = firebase.firestore();
+<script>
+  const db = firebase.firestore();
 
-    firebase.auth().onAuthStateChanged(user => {
-      if (!user) window.location.href = "login.html";
-    });
-
-    function saveScale() {
-      const user = firebase.auth().currentUser;
-      if (!user) return;
-
-      const seriNo = document.getElementById("seriNo").value.trim();
-      const firmaId = prompt("Bu tartı aleti hangi firmaya ait? Firma ID'sini girin:");
-
-      const scaleData = {
-        seriNo,
-        marka: document.getElementById("marka").value.trim(),
-        model: document.getElementById("model").value.trim(),
-        modelKodu: document.getElementById("modelKodu").value.trim(),
-        maxKapasite: document.getElementById("maxKapasite").value.trim(),
-        taksimat: document.getElementById("taksimat").value.trim(),
-        uretimYili: document.getElementById("uretimYili").value.trim(),
-        tipOnayNo: document.getElementById("tipOnayNo").value.trim(),
-        kullanimAmaci: document.getElementById("kullanimAmaci").value.trim(),
-        platformAdedi: document.getElementById("platformAdedi").value.trim(),
-        platformSeriNo: document.getElementById("platformSeriNo").value.trim(),
-        tablaKalinligi: document.getElementById("tablaKalinligi").value.trim(),
-        boyutlar: document.getElementById("boyutlar").value.trim(),
-        basBolmesi: document.getElementById("basBolmesi").value.trim(),
-        araBolmesi: document.getElementById("araBolmesi").value.trim(),
-        anaKiris: document.getElementById("anaKiris").value.trim(),
-        anaKirisSayisi: document.getElementById("anaKirisSayisi").value.trim(),
-        anaKirisSeriNo: document.getElementById("anaKirisSeriNo").value.trim(),
-        montajKitiYapisi: document.getElementById("montajKitiYapisi").value.trim(),
-        montajKitiSayisi: document.getElementById("montajKitiSayisi").value.trim(),
-        digerBilgiler: document.getElementById("digerBilgiler").value.trim(),
-        gostergeMarka: document.getElementById("gostergeMarka").value.trim(),
-        gostergeModel: document.getElementById("gostergeModel").value.trim(),
-        gostergeSeriNo: document.getElementById("gostergeSeriNo").value.trim(),
-        loadcellMarka: document.getElementById("loadcellMarka").value.trim(),
-        loadcellModel: document.getElementById("loadcellModel").value.trim(),
-        loadcellSeriNo: document.getElementById("loadcellSeriNo").value.trim
-(),
-        loadcellSayisi: document.getElementById("loadcellSayisi").value.trim(),
-        jboxMarka: document.getElementById("jboxMarka").value.trim(),
-        jboxModel: document.getElementById("jboxModel").value.trim(),
-        jboxSeriNo: document.getElementById("jboxSeriNo").value.trim(),
-        createdAt: new Date()
-      };
-
-      db.collection("users").doc(user.uid).collection("firms").doc(firmaId)
-        .collection("scales").doc(seriNo)
-        .set(scaleData)
-        .then(() => {
-          alert("Tartı aleti başarıyla kaydedildi.");
-          window.location.href = "dashboard.html";
-        })
-        .catch(err => alert("Hata: " + err.message));
+  firebase.auth().onAuthStateChanged(user => {
+    if (!user) {
+      window.location.href = "login.html";
     }
-  </script>
+  });
+
+  async function uploadFile(userId, firmaId, seriNo) {
+    const fileInput = document.getElementById("dosya");
+    const file = fileInput.files[0];
+    if (!file) return "";
+
+    const storageRef = firebase.storage().ref();
+    const fileRef = storageRef.child(`users/${userId}/firms/${firmaId}/scales/${seriNo}/${file.name}`);
+    await fileRef.put(file);
+    return await fileRef.getDownloadURL();
+  }
+
+  async function saveScale() {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+
+    const seriNo = document.getElementById("seriNo").value.trim();
+    const firmaId = prompt("Bu tartı aleti hangi firmaya ait? Firma ID'sini girin:");
+    const fileUrl = await uploadFile(user.uid, firmaId, seriNo);
+
+    const scaleData = {
+      seriNo,
+      marka: document.getElementById("marka").value.trim(),
+      model: document.getElementById("model").value.trim(),
+      modelKodu: document.getElementById("modelKodu").value.trim(),
+      maxKapasite: document.getElementById("maxKapasite").value.trim(),
+      taksimat: document.getElementById("taksimat").value.trim(),
+      uretimYili: document.getElementById("uretimYili").value.trim(),
+      tipOnayNo: document.getElementById("tipOnayNo").value.trim(),
+      kullanimAmaci: document.getElementById("kullanimAmaci").value.trim(),
+
+      platformAdedi: document.getElementById("platformAdedi").value.trim(),
+      platformSeriNo: document.getElementById("platformSeriNo").value.trim(),
+      tablaKalinligi: document.getElementById("tablaKalinligi")?.value.trim() || "",
+      boyutlar: document.getElementById("boyutlar")?.value.trim() || "",
+      basBolmesi: document.getElementById("basBolmesi")?.value.trim() || "",
+      araBolmesi: document.getElementById("araBolmesi")?.value.trim() || "",
+
+      anaKiris: document.getElementById("anaKiris")?.value.trim() || "",
+      anaKirisSayisi: document.getElementById("anaKirisSayisi")?.value.trim() || "",
+      anaKirisSeriNo: document.getElementById("anaKirisSeriNo")?.value.trim() || "",
+      montajKitiYapisi: document.getElementById("montajKitiYapisi")?.value.trim() || "",
+      montajKitiSayisi: document.getElementById("montajKitiSayisi")?.value.trim() || "",
+      digerBilgiler: document.getElementById("digerBilgiler")?.value.trim() || "",
+
+      gostergeMarka: document.getElementById("gostergeMarka")?.value.trim() || "",
+      gostergeModel: document.getElementById("gostergeModel")?.value.trim() || "",
+      gostergeSeriNo: document.getElementById("gostergeSeriNo")?.value.trim() || "",
+
+      loadcellMarka: document.getElementById("loadcellMarka")?.value.trim() || "",
+      loadcellModel: document.getElementById("loadcellModel")?.value.trim() || "",
+      loadcellSeriNo: document.getElementById("loadcellSeriNo")?.value.trim() || "",
+      loadcellSayisi: document.getElementById("loadcellSayisi")?.value.trim() || "",
+
+      jboxMarka: document.getElementById("jboxMarka")?.value.trim() || "",
+      jboxModel: document.getElementById("jboxModel")?.value.trim() || "",
+      jboxSeriNo: document.getElementById("jboxSeriNo")?.value.trim() || "",
+
+      // Sipariş bilgileri
+      siparisTarihi: document.getElementById("siparisTarihi")?.value || "",
+      siparisiAlan: document.getElementById("siparisiAlan")?.value.trim() || "",
+      faturaTarihi: document.getElementById("faturaTarihi")?.value || "",
+      siparisNotu: document.getElementById("siparisNotu")?.value.trim() || "",
+
+      // Yeni eklenen alanlar
+      ekNot: document.getElementById("ekNot")?.value.trim() || "",
+      etiket: document.getElementById("etiket")?.value.trim() || "",
+      dosyaUrl: fileUrl,
+
+      createdAt: new Date()
+    };
+
+    db.collection("users").doc(user.uid).collection("firms").doc(firmaId)
+      .collection("scales").doc(seriNo)
+      .set(scaleData)
+      .then(() => {
+        alert("Tartı aleti başarıyla kaydedildi.");
+        window.location.href = "dashboard.html";
+      })
+      .catch(err => {
+        alert("Hata: " + err.message);
+      });
+  }
+</script>
 
   <style>
     .input {
