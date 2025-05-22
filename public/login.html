@@ -1,18 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
+  <meta charset="UTF-8">
   <title>Giriş Yap</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+  <div class="bg-white p-8 rounded shadow-md w-full max-w-sm">
+    <h2 class="text-2xl font-bold mb-6 text-center">Giriş Yap</h2>
+    
+    <input id="email" type="email" placeholder="Email" class="w-full mb-4 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <input id="password" type="password" placeholder="Şifre" class="w-full mb-4 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+    
+    <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded">Giriş Yap</button>
+    
+    <p class="mt-4 text-center text-sm text-gray-600">
+      Hesabın yok mu?
+      <button onclick="goToRegister()" class="text-blue-600 hover:underline">Kayıt Ol</button>
+    </p>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="./firebase-config.js"></script>
-</head>
-<body>
-  <h2>Giriş Yap</h2>
-  <input type="email" id="email" placeholder="Email"><br>
-  <input type="password" id="password" placeholder="Şifre"><br>
-  <button onclick="login()">Giriş Yap</button>
-
-  <p>Hesabın yok mu? <button onclick="goToRegister()">Kayıt Ol</button></p>
 
   <script>
     function login() {
@@ -20,11 +30,11 @@
       const password = document.getElementById("password").value;
 
       firebase.auth().signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
+        .then(() => {
           alert("Giriş başarılı!");
           window.location.href = "dashboard.html";
         })
-        .catch((error) => {
+        .catch(error => {
           alert(error.message);
         });
     }
