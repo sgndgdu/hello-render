@@ -34,11 +34,9 @@
       }
 
       for (const t of scales) {
-        if (!firmMap[t.firma_id]) continue;
-        const ref = db.collection("users").doc(user.uid)
-          .collection("firms").doc(t.firma_id)
-          .collection("scales").doc(t.seri_no);
-        await ref.set(t);
+      const ref = db.collection("users").doc(user.uid)
+      .collection("scales").doc(t.seri_no); // firmaya bağlı değil
+      await ref.set(t);
       }
 
       alert("Tüm veriler başarıyla yüklendi ✅");
