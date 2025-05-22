@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Kayıtlı Tartı Aletleri</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white p-8 rounded shadow-md w-full max-w-4xl">
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Kayıtlı Tartı Aletleri</h2>
+
+    <div class="mb-4">
+      <input type="text" id="searchInput" oninput="filtrele()" placeholder="Seri No, Marka veya Model ile ara..." class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
+
+    <ul id="scaleListesi" class="space-y-4 text-sm text-gray-800"></ul>
+
+    <div class="flex justify-between mt-6">
+      <button onclick="geriSayfa()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">Geri</button>
+      <button onclick="ileriSayfa()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">İleri</button>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="./firebase-config.js"></script>
+
+  <script>
+    const db = firebase.firestore();
+    let tumScaleler = [];
+    let gosterilen = 0;
+    const sayfaBoyutu = 5;
+
+    firebase.auth().onAuthStateChanged((user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        db.collection("users").doc(user.uid).collectionGroup("scales")
+          .get()
+          .then(snapshot => {
+            tumScaleler = snapshot.docs.map(doc => doc.data());
+            listele();
+          });
+      }
+    });
+
+    function listele() {
+      const liste = document.getElementById("scaleListesi");
+      liste.innerHTML = "";
+      const parca = tumScaleler.slice(gosterilen, gosterilen + sayfaBoyutu);
+
+      if (parca.length === 0) {
+        liste.innerHTML = "<li class='text-gray-600'>Kayıtlı tartı aleti yok.</li>";
+        return;
+      }
+
+      parca.forEach(scale => {
+        const li = document.createElement("li");
+        li.className = "p-4 border rounded bg-gray-50 shadow-sm";
+        li.innerHTML = `
+          <strong class="text-lg">${scale.seriNo}</strong><br>
+          Marka: ${scale.marka || "-"} | Model: ${scale.model || "-"}
+        `;
+        liste.appendChild(li);
+      });
+    }
+
+    function filtrele() {
+      const arama = document.getElementById("searchInput").value.trim().toLowerCase();
+      const filtrelenmis = tumScaleler.filter(scale =>
+        scale.seriNo?.toLowerCase().includes(arama) ||
+        scale.marka?.toLowerCase().includes(arama) ||
+        scale.model?.toLowerCase().includes(arama)
+      );
+      gosterilen = 0;
+      tumScaleler = filtrelenmis;
+      listele();
+    }
+
+    function ileriSayfa() {
+      if (gosterilen + sayfaBoyutu < tumScaleler.length) {
+        gosterilen += sayfaBoyutu;
+        listele();
+      }
+    }
+
+    function geriSayfa() {
+      if (gosterilen - sayfaBoyutu >= 0) {
+        gosterilen -= sayfaBoyutu;
+        listele();
+      }
+    }
+  </script>
+</body>
+</html>
