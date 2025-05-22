@@ -42,31 +42,44 @@
     });
 
     function saveFirm() {
-      const user = firebase.auth().currentUser;
-      if (!user) return;
+  const user = firebase.auth().currentUser;
+  if (!user) return;
 
-      const data = {
-        firmaAdi: document.getElementById("firmaAdi").value,
-        firmaYetkilisi: document.getElementById("firmaYetkilisi").value,
-        il: document.getElementById("il").value,
-        ilce: document.getElementById("ilce").value,
-        vergiNo: document.getElementById("vergiNo").value,
-        vergiDairesi: document.getElementById("vergiDairesi").value,
-        ulke: document.getElementById("ulke").value,
-        adres: document.getElementById("adres").value,
-        telefon: document.getElementById("telefon").value,
-        createdAt: new Date()
-      };
+  const firmaAdi = document.getElementById("firmaAdi").value.trim();
+  const vergiNo = document.getElementById("vergiNo").value.trim();
 
-      db.collection("users").doc(user.uid).collection("firms").add(data)
-        .then(() => {
-          alert("Müşteri başarıyla eklendi!");
-          window.location.href = "dashboard.html";
-        })
-        .catch((error) => {
-          alert("Hata: " + error.message);
-        });
-    }
+  const data = {
+    firmaAdi,
+    firmaYetkilisi: document.getElementById("firmaYetkilisi").value.trim(),
+    il: document.getElementById("il").value.trim(),
+    ilce: document.getElementById("ilce").value.trim(),
+    vergiNo,
+    vergiDairesi: document.getElementById("vergiDairesi").value.trim(),
+    ulke: document.getElementById("ulke").value.trim(),
+    adres: document.getElementById("adres").value.trim(),
+    telefon: document.getElementById("telefon").value.trim(),
+    createdAt: new Date()
+  };
+
+  // Aynı kullanıcı altında aynı vergi no var mı kontrolü
+  db.collection("users").doc(user.uid).collection("firms")
+    .where("vergiNo", "==", vergiNo)
+    .get()
+    .then(querySnapshot => {
+      if (!querySnapshot.empty) {
+        alert("Bu vergi numarasına sahip bir firma zaten eklenmiş!");
+      } else {
+        db.collection("users").doc(user.uid).collection("firms").add(data)
+          .then(() => {
+            alert("Müşteri başarıyla eklendi!");
+            window.location.href = "dashboard.html";
+          })
+          .catch(error => {
+            alert("Hata: " + error.message);
+          });
+      }
+    });
+}
 
     function goBack() {
       window.location.href = "dashboard.html";
