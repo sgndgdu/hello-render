@@ -41,19 +41,21 @@
     let gosterilen = 0;
     const sayfaBoyutu = 5;
 
-    firebase.auth().onAuthStateChanged((user) => {
-      if (!user) {
-        window.location.href = "login.html";
-      } else {
-        db.collectionGroup("scales")
-          .get()
-          .then(snapshot => {
-            tumScaleler = snapshot.docs.map(doc => doc.data());
-            filtrelenmisScaleler = [...tumScaleler];
-            listele();
-          })
-          .catch(err => console.error("Veri çekme hatası:", err));
-      }
+   firebase.auth().onAuthStateChanged((user) => {
+  if (!user || user.providerData.length === 0) {
+    // Oturum yok veya anonim kullanıcı varsa → girişe gönder
+    window.location.href = "login.html";
+    return;
+  }
+
+  db.collectionGroup("scales")
+    .get()
+    .then(snapshot => {
+      tumScaleler = snapshot.docs.map(doc => doc.data());
+      filtrelenmisScaleler = [...tumScaleler];
+      listele();
+    })
+    .catch(err => console.error("Veri çekme hatası:", err));
     });
 
     function listele() {
