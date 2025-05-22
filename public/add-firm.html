@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Müşteri Ekle</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white p-8 rounded shadow-md w-full max-w-2xl">
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Yeni Müşteri Ekle</h2>
+    
+    <form id="firmForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <input type="text" id="firmaAdi" placeholder="Firma Adı" class="input">
+      <input type="text" id="firmaYetkilisi" placeholder="Firma Yetkilisi" class="input">
+      <input type="text" id="il" placeholder="İl" class="input">
+      <input type="text" id="ilce" placeholder="İlçe" class="input">
+      <input type="text" id="vergiNo" placeholder="Vergi Numarası" class="input">
+      <input type="text" id="vergiDairesi" placeholder="Vergi Dairesi" class="input">
+      <input type="text" id="ulke" placeholder="Ülke" class="input">
+      <input type="text" id="telefon" placeholder="Telefon" class="input">
+      <textarea id="adres" placeholder="Adres" class="input md:col-span-2"></textarea>
+    </form>
+
+    <div class="mt-6 flex justify-between">
+      <button onclick="saveFirm()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Kaydet</button>
+      <button onclick="goBack()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded">Geri Dön</button>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="./firebase-config.js"></script>
+
+  <script>
+    const db = firebase.firestore();
+
+    firebase.auth().onAuthStateChanged((user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      }
+    });
+
+    function saveFirm() {
+      const user = firebase.auth().currentUser;
+      if (!user) return;
+
+      const data = {
+        firmaAdi: document.getElementById("firmaAdi").value,
+        firmaYetkilisi: document.getElementById("firmaYetkilisi").value,
+        il: document.getElementById("il").value,
+        ilce: document.getElementById("ilce").value,
+        vergiNo: document.getElementById("vergiNo").value,
+        vergiDairesi: document.getElementById("vergiDairesi").value,
+        ulke: document.getElementById("ulke").value,
+        adres: document.getElementById("adres").value,
+        telefon: document.getElementById("telefon").value,
+        createdAt: new Date()
+      };
+
+      db.collection("users").doc(user.uid).collection("firms").add(data)
+        .then(() => {
+          alert("Müşteri başarıyla eklendi!");
+          window.location.href = "dashboard.html";
+        })
+        .catch((error) => {
+          alert("Hata: " + error.message);
+        });
+    }
+
+    function goBack() {
+      window.location.href = "dashboard.html";
+    }
+  </script>
+
+  <style>
+    .input {
+      padding: 0.5rem 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      width: 100%;
+      outline: none;
+    }
+    .input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 1px #2563eb;
+    }
+  </style>
+</body>
+</html>
