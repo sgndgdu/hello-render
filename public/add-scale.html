@@ -12,10 +12,8 @@
     <!-- Temel Bilgiler -->
     <div class="mb-6 border rounded p-6 bg-green-50">
       <h3 class="text-xl font-semibold text-green-700 mb-2">Temel Bilgiler</h3>
-      <p class="text-sm text-gray-600 mb-4">Tartı aletinin marka, model, seri numarası gibi temel bilgilerini giriniz.</p>
-
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <input id="seriNo" placeholder="Seri No *" class="input" required>
+        <input id="seriNo" placeholder="Seri No *" class="input">
         <input id="marka" placeholder="Marka *" class="input">
         <input id="model" placeholder="Model *" class="input">
         <input id="modelKodu" placeholder="Model Kodu *" class="input">
@@ -27,7 +25,50 @@
       </div>
     </div>
 
-    <!-- Buton -->
+    <!-- Platform Özellikleri -->
+    <div class="mb-6 border rounded p-6 bg-yellow-50">
+      <h3 class="text-xl font-semibold text-yellow-700 mb-2">Platform Özellikleri</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <input id="platformAdedi" type="number" placeholder="Platform Blok Sayısı" class="input">
+        <input id="platformSeriNo" placeholder="Platform Blok Seri No" class="input">
+        <input id="tablaKalinligi" placeholder="Tabla Kalınlığı" class="input">
+        <input id="boyutlar" placeholder="Boyutlar" class="input">
+        <input id="basBolmesi" placeholder="Baş Bölmesi" class="input">
+        <input id="araBolmesi" placeholder="Ara Bölmesi" class="input">
+      </div>
+    </div>
+
+    <!-- Yapısal Bileşenler -->
+    <div class="mb-6 border rounded p-6 bg-purple-50">
+      <h3 class="text-xl font-semibold text-purple-700 mb-2">Yapısal Bileşenler</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <input id="anaKiris" placeholder="Ana Kiriş" class="input">
+        <input id="anaKirisSayisi" type="number" placeholder="Ana Kiriş Sayısı" class="input">
+        <input id="anaKirisSeriNo" placeholder="Ana Kiriş Seri No" class="input">
+        <input id="montajKitiYapisi" placeholder="Montaj Kiti Yapısı" class="input">
+        <input id="montajKitiSayisi" type="number" placeholder="Montaj Kiti Sayısı" class="input">
+        <input id="digerBilgiler" placeholder="Diğer Bilgiler" class="input">
+      </div>
+    </div>
+
+    <!-- Elektronik Bileşenler -->
+    <div class="mb-6 border rounded p-6 bg-red-50">
+      <h3 class="text-xl font-semibold text-red-700 mb-2">Elektronik Bileşenler</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <input id="gostergeMarka" placeholder="Gösterge Markası" class="input">
+        <input id="gostergeModel" placeholder="Gösterge Modeli" class="input">
+        <input id="gostergeSeriNo" placeholder="Gösterge Seri No" class="input">
+        <input id="loadcellMarka" placeholder="Loadcell Markası" class="input">
+        <input id="loadcellModel" placeholder="Loadcell Modeli" class="input">
+        <input id="loadcellSeriNo" placeholder="Loadcell Seri No" class="input">
+        <input id="loadcellSayisi" type="number" placeholder="Loadcell Sayısı" class="input">
+        <input id="jboxMarka" placeholder="Junction Box Markası" class="input">
+        <input id="jboxModel" placeholder="Junction Box Modeli" class="input">
+        <input id="jboxSeriNo" placeholder="Junction Box Seri No" class="input">
+      </div>
+    </div>
+
+    <!-- Kaydet Butonu -->
     <div class="text-center mt-6">
       <button onclick="saveScale()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Kaydet</button>
     </div>
@@ -42,9 +83,7 @@
     const db = firebase.firestore();
 
     firebase.auth().onAuthStateChanged(user => {
-      if (!user) {
-        window.location.href = "login.html";
-      }
+      if (!user) window.location.href = "login.html";
     });
 
     function saveScale() {
@@ -52,7 +91,7 @@
       if (!user) return;
 
       const seriNo = document.getElementById("seriNo").value.trim();
-      const firmaId = prompt("Bu tartı aleti hangi firmaya ait? Firma ID'sini girin:"); // geçici ilişkilendirme
+      const firmaId = prompt("Bu tartı aleti hangi firmaya ait? Firma ID'sini girin:");
 
       const scaleData = {
         seriNo,
@@ -64,10 +103,32 @@
         uretimYili: document.getElementById("uretimYili").value.trim(),
         tipOnayNo: document.getElementById("tipOnayNo").value.trim(),
         kullanimAmaci: document.getElementById("kullanimAmaci").value.trim(),
+        platformAdedi: document.getElementById("platformAdedi").value.trim(),
+        platformSeriNo: document.getElementById("platformSeriNo").value.trim(),
+        tablaKalinligi: document.getElementById("tablaKalinligi").value.trim(),
+        boyutlar: document.getElementById("boyutlar").value.trim(),
+        basBolmesi: document.getElementById("basBolmesi").value.trim(),
+        araBolmesi: document.getElementById("araBolmesi").value.trim(),
+        anaKiris: document.getElementById("anaKiris").value.trim(),
+        anaKirisSayisi: document.getElementById("anaKirisSayisi").value.trim(),
+        anaKirisSeriNo: document.getElementById("anaKirisSeriNo").value.trim(),
+        montajKitiYapisi: document.getElementById("montajKitiYapisi").value.trim(),
+        montajKitiSayisi: document.getElementById("montajKitiSayisi").value.trim(),
+        digerBilgiler: document.getElementById("digerBilgiler").value.trim(),
+        gostergeMarka: document.getElementById("gostergeMarka").value.trim(),
+        gostergeModel: document.getElementById("gostergeModel").value.trim(),
+        gostergeSeriNo: document.getElementById("gostergeSeriNo").value.trim(),
+        loadcellMarka: document.getElementById("loadcellMarka").value.trim(),
+        loadcellModel: document.getElementById("loadcellModel").value.trim(),
+        loadcellSeriNo: document.getElementById("loadcellSeriNo").value.trim
+(),
+        loadcellSayisi: document.getElementById("loadcellSayisi").value.trim(),
+        jboxMarka: document.getElementById("jboxMarka").value.trim(),
+        jboxModel: document.getElementById("jboxModel").value.trim(),
+        jboxSeriNo: document.getElementById("jboxSeriNo").value.trim(),
         createdAt: new Date()
       };
 
-      // Müşteriye bağlı olarak scales koleksiyonuna kaydet
       db.collection("users").doc(user.uid).collection("firms").doc(firmaId)
         .collection("scales").doc(seriNo)
         .set(scaleData)
@@ -75,9 +136,7 @@
           alert("Tartı aleti başarıyla kaydedildi.");
           window.location.href = "dashboard.html";
         })
-        .catch(err => {
-          alert("Hata: " + err.message);
-        });
+        .catch(err => alert("Hata: " + err.message));
     }
   </script>
 
