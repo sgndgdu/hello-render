@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Kantar CRM | Ana Sayfa</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+  <div class="bg-white p-8 rounded shadow-md text-center max-w-md w-full">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Kantar CRM</h1>
+    <p class="text-gray-600 mb-8">Tartı aleti bakım ve müşteri takip sistemi</p>
+    
+    <div class="flex flex-col space-y-4">
+      <button onclick="goToLogin()" class="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded text-lg">
+        Giriş Yap
+      </button>
+      <button onclick="goToRegister()" class="bg-green-600 hover:bg-green-700 text-white py-2 rounded text-lg">
+        Kayıt Ol
+      </button>
+    </div>
+  </div>
+
+  <script>
+    function goToLogin() {
+      window.location.href = "login.html";
+    }
+    function goToRegister() {
+      window.location.href = "register.html";
+    }
+  </script>
+</body>
+</html>
