@@ -224,7 +224,7 @@
 // Dinamik Marka/Model/Tip Onay Listeleri
 let markaVerileri = {}, modelVerileri = {};
 
-firebase.firestore().collection("scale_metadata").doc("brand_model_map").get().then(doc => {
+firebase.firestore().collection("scales_metadata").doc("brand_model_map").get().then(doc => {
   if (doc.exists) {
     const data = doc.data();
     markaVerileri = data || {};
