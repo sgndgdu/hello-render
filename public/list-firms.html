@@ -58,20 +58,23 @@
     li.className = "p-4 border rounded bg-white shadow-sm";
 
     // Firma bilgisi
-    li.innerHTML = `
-      <div class="mb-2">
-        <strong class="text-lg text-blue-800">${firma.firmaAdi}</strong><br>
-        <span class="text-sm text-gray-700">${firma.firmaYetkilisi || "-"}</span><br>
-        <span class="text-sm text-gray-500">${firma.il}, ${firma.ilce}</span><br>
-        <span class="text-sm text-gray-600">Tel: ${firma.telefon || "-"}</span>
+   veriler.forEach(async firma => {
+  const li = document.createElement("li");
+
+  li.innerHTML = `
+    <a href="firma-detay.html?id=${firma.id}" class="block hover:bg-blue-50 transition rounded p-4 border border-gray-200 shadow-sm">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800">${firma.firmaAdi}</h3>
+          <p class="text-sm text-gray-600">${firma.firmaYetkilisi || "-"}</p>
+          <p class="text-sm text-gray-500">${firma.il}, ${firma.ilce}</p>
+        </div>
+        <div class="text-sm text-blue-600">Detay</div>
       </div>
-      <div class="mt-2 text-sm text-gray-700">
-        <strong>Tartı Aletleri:</strong>
-        <ul class="list-disc ml-6 mt-1 text-gray-600" id="scales-${firma.id}">
-          <li>Yükleniyor...</li>
-        </ul>
-      </div>
-    `;
+    </a>
+  `;
+  document.getElementById("firmaListesi").appendChild(li);
+});
     liste.appendChild(li);
 
     // Scale'ları getir
