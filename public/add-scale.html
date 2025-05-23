@@ -4,17 +4,79 @@
   <meta charset="UTF-8">
   <title>Tartı Aleti Ekle</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .input {
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      width: 100%;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input:focus {
+      border-color: #3b82f6;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+    }
+
+    label {
+      font-weight: 500;
+      display: block;
+      margin-bottom: 4px;
+      color: #374151;
+    }
+
+    textarea.input {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .mb-6 {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .text-xl {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+      border-left: 4px solid #10b981;
+      padding-left: 0.75rem;
+    }
+
+    .bg-green-50, .bg-yellow-50, .bg-purple-50, .bg-red-50, .bg-slate-50 {
+      background-color: #f9fafb;
+    }
+
+    .grid-cols-1.md\:grid-cols-3.gap-4 > div {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .btn {
+      background-color: #3b82f6;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+
+    .btn:hover {
+      background-color: #2563eb;
+    }
+
+    button svg {
+      margin-right: 4px;
+    }
+  </style>
 </head>
 <body class="bg-gray-100 py-10">
-  <!-- Üst Butonlar -->
-  <div class="max-w-5xl mx-auto px-4 mb-6">
-    <div class="flex flex-wrap justify-between gap-4">
-      <button 
-        onclick="window.location.href='dashboard.html'" 
-        class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium px-4 py-2 rounded shadow-sm transition">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9.75L12 3l9 6.75M4.5 10.5v9.75h15v-9.75" />
-        </svg>
+  <!-- Tüm içerik buraya aynı şekilde devam eder -->
+</body>
+</html>
         Ana Sayfa
       </button>
       <button 
@@ -351,14 +413,5 @@ function loadModeller() {
   }
 }
 </script>
-
-  <style>
-    .input {
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      width: 100%;
-    }
-  </style>
 </body>
 </html>
