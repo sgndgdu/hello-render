@@ -37,7 +37,7 @@
           .orderBy("firmaAdi")
           .get()
           .then(snapshot => {
-            tumFirmalar = snapshot.docs.map(doc => doc.data());
+            tumFirmalar = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             listele(tumFirmalar);
           });
       }
@@ -45,26 +45,53 @@
     });
 
     function listele(veriler) {
-      const liste = document.getElementById("firmaListesi");
-      liste.innerHTML = "";
+  const liste = document.getElementById("firmaListesi");
+  liste.innerHTML = "";
 
-      if (veriler.length === 0) {
-        liste.innerHTML = "<li class='text-gray-600'>Kayıtlı firma yok.</li>";
-        return;
-      }
+  if (veriler.length === 0) {
+    liste.innerHTML = "<li class='text-gray-600'>Kayıtlı firma yok.</li>";
+    return;
+  }
 
-      veriler.forEach(firma => {
+  veriler.forEach(async firma => {
+    const li = document.createElement("li");
+    li.className = "p-4 border rounded bg-white shadow-sm";
+
+    // Firma bilgisi
+    li.innerHTML = `
+      <div class="mb-2">
+        <strong class="text-lg text-blue-800">${firma.firmaAdi}</strong><br>
+        <span class="text-sm text-gray-700">${firma.firmaYetkilisi || "-"}</span><br>
+        <span class="text-sm text-gray-500">${firma.il}, ${firma.ilce}</span><br>
+        <span class="text-sm text-gray-600">Tel: ${firma.telefon || "-"}</span>
+      </div>
+      <div class="mt-2 text-sm text-gray-700">
+        <strong>Tartı Aletleri:</strong>
+        <ul class="list-disc ml-6 mt-1 text-gray-600" id="scales-${firma.id}">
+          <li>Yükleniyor...</li>
+        </ul>
+      </div>
+    `;
+    liste.appendChild(li);
+
+    // Scale'ları getir
+    const user = firebase.auth().currentUser;
+    const scaleList = document.getElementById(`scales-${firma.id}`);
+    const snapshot = await db.collection("users").doc(user.uid).collection("firms").doc(firma.id).collection("scales").get();
+    scaleList.innerHTML = "";
+
+    if (snapshot.empty) {
+      scaleList.innerHTML = "<li>Henüz tartı aleti yok.</li>";
+    } else {
+      snapshot.forEach(doc => {
+        const scale = doc.data();
         const li = document.createElement("li");
-        li.className = "p-4 border rounded bg-gray-50 shadow-sm";
-        li.innerHTML = `
-          <strong class="text-lg">${firma.firmaAdi}</strong><br>
-          ${firma.firmaYetkilisi || "-"}<br>
-          ${firma.il}, ${firma.ilce}<br>
-          Tel: ${firma.telefon || "-"}
-        `;
-        liste.appendChild(li);
+        li.textContent = `${scale.marka} - ${scale.seriNo}`;
+        scaleList.appendChild(li);
       });
     }
+  });
+}
 
     function filtrele() {
       const arama = document.getElementById("searchInput").value.trim().toLowerCase();
