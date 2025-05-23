@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Marka - Model - Tip Onay Yükleyici</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="./firebase-config.js"></script>
+</head>
+<body class="font-sans bg-gray-100 p-8">
+  <h1 class="text-2xl font-bold mb-4">Marka / Model / Tip Onay No Yükle</h1>
+  <p class="mb-4 text-sm text-gray-600">Excel'den aldığınız JSON dosyasını seçin.</p>
+
+  <input type="file" accept=".json" id="jsonInput" class="mb-4">
+  <br>
+  <button onclick="uploadMetadata()" class="bg-blue-600 text-white px-4 py-2 rounded">Yüklemeyi Başlat</button>
+
+  <script>
+    let metadata = {};
+
+    document.getElementById('jsonInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function(event) {
+        try {
+          metadata = JSON.parse(event.target.result);
+          alert("Veri başarıyla yüklendi. Yüklemeyi başlatmak için butona tıklayın.");
+        } catch (err) {
+          alert("Geçersiz JSON dosyası.");
+        }
+      };
+
+      reader.readAsText(file);
+    });
+
+    async function uploadMetadata() {
+      const db = firebase.firestore();
+      const user = firebase.auth().currentUser;
+      if (!user) return alert("Oturum açılmamış.");
+
+      const batch = db.batch();
+
+      for (const marka in metadata) {
+        const docRef = db.collection("scales_metadata").doc(marka);
+        batch.set(docRef, metadata[marka]);
+      }
+
+      await batch.commit();
+      alert("Tüm veriler başarıyla Firestore'a yüklendi ✅");
+    }
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) firebase.auth().signInAnonymously();
+    });
+  </script>
+</body>
+</html>
