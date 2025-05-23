@@ -60,20 +60,37 @@
             document.getElementById("vergiNo").innerText = data.vergiNo || "-";
           });
 
-        db.collection("users").doc(user.uid).collection("firms").doc(firmaId).collection("scaleIds")
-          .get()
-          .then(snapshot => {
-            const list = document.getElementById("scaleList");
-            list.innerHTML = "";
-            if (snapshot.empty) {
-              list.innerHTML = "<li>Bu firmaya ait kayıtlı tartı aleti yok.</li>";
-              return;
-            }
-            snapshot.forEach(doc => {
-              const id = doc.id;
-              const li = document.createElement("li");
-              li.textContent = id;
-              list.appendChild(li);
+        db.collection("users").doc(user.uid).collection("firms").doc(firmaId)
+  .get()
+  .then(doc => {
+    const data = doc.data();
+
+    // Firma bilgilerini doldur
+    document.getElementById("firmaAdi").innerText = data.firmaAdi;
+    document.getElementById("firmaYetkilisi").innerText = data.firmaYetkilisi || "-";
+    document.getElementById("telefon").innerText = data.telefon || "-";
+    document.getElementById("adres").innerText = `${data.il || ""}, ${data.ilce || ""}, ${data.ulke || ""}`;
+    document.getElementById("vergiDairesi").innerText = data.vergiDairesi || "-";
+    document.getElementById("vergiNo").innerText = data.vergiNo || "-";
+
+    // Tartı aletlerini listele
+    const list = document.getElementById("scaleList");
+    list.innerHTML = "";
+
+    if (!data.scaleIds || data.scaleIds.length === 0) {
+      list.innerHTML = "<li>Bu firmaya ait kayıtlı tartı aleti yok.</li>";
+      return;
+    }
+
+    data.scaleIds.forEach(scaleId => {
+      db.collection("users").doc(user.uid).collection("scales").doc(scaleId)
+        .get()
+        .then(scaleDoc => {
+          if (scaleDoc.exists) {
+            const scale = scaleDoc.data();
+            const li = document.createElement("li");
+            li.innerHTML = `<strong>${scale.marka}</strong> - ${scale.seriNo}`;
+            list.appendChild(li);
             });
           });
       }
