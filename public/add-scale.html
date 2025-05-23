@@ -224,12 +224,20 @@
   }
 
   async function saveScale() {
-    const user = firebase.auth().currentUser;
-    if (!user) return;
+  const user = firebase.auth().currentUser;
+  if (!user) return;
 
-    const seriNo = document.getElementById("seriNo").value.trim();
-    const firmaId = prompt("Bu tartı aleti hangi firmaya ait? Firma ID'sini girin:");
-    const fileUrl = await uploadFile(user.uid, firmaId, seriNo);
+  const marka = document.getElementById("marka").value.trim();
+  const seriNo = document.getElementById("seriNo").value.trim();
+  const uniqueKey = `${marka}-${seriNo}`;
+
+  const existing = await db.collection("users").doc(user.uid).collection("scales").doc(uniqueKey).get();
+  if (existing.exists) {
+    alert("Bu markaya ait bu seri numarası zaten kayıtlı.");
+    return;
+  }
+
+  const fileUrl = await uploadFile(user.uid, "not_needed", seriNo);
 
     const scaleData = {
       seriNo,
@@ -283,7 +291,7 @@
       createdAt: new Date()
     };
 
-    db.collection("users").doc(user.uid).collection("firms").doc(firmaId)
+    db.collection("users").doc(user.uid).collection("scales").doc(`${marka}-${seriNo}`)
       .collection("scales").doc(seriNo)
       .set(scaleData)
       .then(() => {
