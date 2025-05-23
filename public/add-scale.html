@@ -224,19 +224,19 @@
 // Dinamik Marka/Model/Tip Onay Listeleri
 let markaVerileri = {}, modelVerileri = {};
 
-firebase.firestore().collection("scales_metadata").doc("brand_model_map").get().then(doc => {
-  if (doc.exists) {
-    const data = doc.data();
-    markaVerileri = data || {};
-    const markaListesi = Object.keys(markaVerileri);
-    const markaList = document.getElementById("markaList");
-    markaList.innerHTML = "";
-    markaListesi.forEach(marka => {
-      const option = document.createElement("option");
-      option.value = marka;
-      markaList.appendChild(option);
-    });
-  }
+firebase.firestore().collection("scales_metadata").get().then(snapshot => {
+  snapshot.forEach(doc => {
+    markaVerileri[doc.id] = doc.data();
+  });
+
+  const markaListesi = Object.keys(markaVerileri);
+  const markaList = document.getElementById("markaList");
+  markaList.innerHTML = "";
+  markaListesi.forEach(marka => {
+    const option = document.createElement("option");
+    option.value = marka;
+    markaList.appendChild(option);
+  });
 });
 
 // Marka seçildiğinde modellere göre güncelle
