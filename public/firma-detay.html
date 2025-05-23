@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Firma Detay</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen py-10 px-4">
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded shadow">
+    <h1 class="text-2xl font-bold text-gray-800 mb-4" id="firmaBaslik">Firma Detayları</h1>
+
+    <div class="mb-6" id="firmaBilgileri"></div>
+
+    <h2 class="text-xl font-semibold text-gray-700 mb-2">Tanımlı Tartı Aletleri</h2>
+    <ul id="scaleListesi" class="space-y-4"></ul>
+
+    <div class="mt-6">
+      <a href="list-firms.html" class="text-blue-600 hover:underline">&larr; Geri Dön</a>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="./firebase-config.js"></script>
+
+  <script>
+    const db = firebase.firestore();
+    const params = new URLSearchParams(window.location.search);
+    const firmaId = params.get("id");
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) return window.location.href = "login.html";
+      if (!firmaId) return alert("Firma ID bulunamadı");
+
+      // Firma bilgilerini al
+      db.collection("users").doc(user.uid).collection("firms").doc(firmaId)
+        .get()
+        .then(doc => {
+          if (!doc.exists) return;
+          const data = doc.data();
+          document.getElementById("firmaBaslik").textContent = data.firmaAdi;
+          document.getElementById("firmaBilgileri").innerHTML = `
+            <p><strong>Yetkili:</strong> ${data.firmaYetkilisi || "-"}</p>
+            <p><strong>Telefon:</strong> ${data.telefon || "-"}</p>
+            <p><strong>Adres:</strong> ${data.il || "-"}, ${data.ilce || "-"}</p>
+          `;
+        });
+
+      // Scale listesi
+      db.collection("users").doc(user.uid).collection("firms").doc(firmaId)
+        .get()
+        .then(doc => {
+          const scaleIds = doc.data().scaleIds || [];
+          if (scaleIds.length === 0) {
+            document.getElementById("scaleListesi").innerHTML = "<li class='text-gray-500'>Tanımlı tartı aleti yok.</li>";
+            return;
+          }
+
+          const listEl = document.getElementById("scaleListesi");
+          scaleIds.forEach(id => {
+            db.collection("users").doc(user.uid).collection("scales").doc(id)
+              .get()
+              .then(scaleDoc => {
+                const scale = scaleDoc.data();
+                const li = document.createElement("li");
+                li.className = "bg-gray-50 p-4 border rounded flex items-center justify-between";
+                li.innerHTML = `
+                  <div>
+                    <p><strong>${scale.marka}</strong> - ${scale.seriNo}</p>
+                    <p class="text-sm text-gray-500">${scale.model} | ${scale.tipOnayNo || "-"}</p>
+                  </div>
+                  <button onclick="kaldir('${id}')" class="bg-red-100 hover:bg-red-200 text-red-700 text-sm px-3 py-1 rounded">Eşleşmeyi Kaldır</button>
+                `;
+                listEl.appendChild(li);
+              });
+          });
+        });
+    });
+
+    function kaldir(scaleId) {
+      if (!confirm("Bu tartı aleti ile olan eşleşmeyi kaldırmak istiyor musunuz?")) return;
+
+      firebase.auth().onAuthStateChanged(user => {
+        if (!user) return;
+
+        const firmaRef = db.collection("users").doc(user.uid).collection("firms").doc(firmaId);
+
+        firmaRef.update({
+          scaleIds: firebase.firestore.FieldValue.arrayRemove(scaleId)
+        }).then(() => {
+          alert("Eşleşme kaldırıldı.");
+          window.location.reload();
+        });
+      });
+    }
+  </script>
+</body>
+</html>
