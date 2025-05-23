@@ -1,3 +1,75 @@
-<select id="firmaSelect" class="input"></select>
-<select id="scaleSelect" class="input"></select>
-<button onclick="eslestir()" class="btn">Eşleştir</button>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Tartı Aleti Eşleştir</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white p-8 rounded shadow-md w-full max-w-xl">
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Tartı Aleti - Müşteri Eşleştirme</h2>
+
+    <label for="firmaSelect" class="block mb-1 text-sm font-medium text-gray-700">Müşteri Seç</label>
+    <select id="firmaSelect" class="input mb-4 w-full border px-4 py-2 rounded"></select>
+
+    <label for="scaleSelect" class="block mb-1 text-sm font-medium text-gray-700">Tartı Aleti Seç</label>
+    <select id="scaleSelect" class="input mb-4 w-full border px-4 py-2 rounded"></select>
+
+    <button onclick="eslestir()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 w-full">Eşleştir</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="./firebase-config.js"></script>
+
+  <script>
+    const db = firebase.firestore();
+    let currentUser;
+
+    firebase.auth().onAuthStateChanged(async user => {
+      if (!user) return window.location.href = "login.html";
+      currentUser = user;
+      await firmalariYukle();
+      await scaleYukle();
+    });
+
+    async function firmalariYukle() {
+      const firmaSelect = document.getElementById("firmaSelect");
+      const snapshot = await db.collection("users").doc(currentUser.uid).collection("firms").get();
+      snapshot.forEach(doc => {
+        const option = document.createElement("option");
+        option.value = doc.id;
+        option.textContent = doc.data().firmaAdi;
+        firmaSelect.appendChild(option);
+      });
+    }
+
+    async function scaleYukle() {
+      const scaleSelect = document.getElementById("scaleSelect");
+      const snapshot = await db.collection("users").doc(currentUser.uid).collection("scales").get();
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const option = document.createElement("option");
+        option.value = doc.id;
+        option.textContent = `${data.marka} - ${data.seriNo}`;
+        scaleSelect.appendChild(option);
+      });
+    }
+
+    async function eslestir() {
+      const firmaId = document.getElementById("firmaSelect").value;
+      const scaleId = document.getElementById("scaleSelect").value;
+      if (!firmaId || !scaleId) return alert("Lütfen firma ve tartı aleti seçin.");
+
+      await db.collection("users").doc(currentUser.uid)
+        .collection("firms").doc(firmaId)
+        .update({
+          scaleIds: firebase.firestore.FieldValue.arrayUnion(scaleId)
+        });
+
+      alert("Eşleştirme tamamlandı.");
+    }
+  </script>
+</body>
+</html>
