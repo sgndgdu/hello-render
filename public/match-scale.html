@@ -2,20 +2,30 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Tartı Aleti Eşleştir</title>
+  <title>Tartı Aleti - Müşteri Eşleştir</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-  <div class="bg-white p-8 rounded shadow-md w-full max-w-xl">
-    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Tartı Aleti - Müşteri Eşleştirme</h2>
+<body class="bg-gray-100 min-h-screen py-10 px-4">
+  <div class="max-w-3xl mx-auto bg-white shadow-md rounded p-6">
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Tartı Aleti ile Müşteri Eşleştir</h2>
 
-    <label for="firmaSelect" class="block mb-1 text-sm font-medium text-gray-700">Müşteri Seç</label>
-    <select id="firmaSelect" class="input mb-4 w-full border px-4 py-2 rounded"></select>
+    <div class="grid grid-cols-1 gap-4">
+      <div>
+        <label for="firmaInput" class="block mb-1 text-sm font-medium text-gray-700">Müşteri Adı</label>
+        <input list="firmalar" id="firmaInput" placeholder="Firma adı girin" class="input">
+        <datalist id="firmalar"></datalist>
+      </div>
 
-    <label for="scaleSelect" class="block mb-1 text-sm font-medium text-gray-700">Tartı Aleti Seç</label>
-    <select id="scaleSelect" class="input mb-4 w-full border px-4 py-2 rounded"></select>
+      <div>
+        <label for="scaleInput" class="block mb-1 text-sm font-medium text-gray-700">Tartı Aleti Seri No</label>
+        <input list="scaleIds" id="scaleInput" placeholder="Seri numarası girin" class="input">
+        <datalist id="scaleIds"></datalist>
+      </div>
 
-    <button onclick="eslestir()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 w-full">Eşleştir</button>
+      <button onclick="eslestir()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded mt-4">Eşleştir</button>
+    </div>
+
+    <div id="sonuc" class="mt-4 text-center text-sm text-gray-600"></div>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -25,51 +35,66 @@
 
   <script>
     const db = firebase.firestore();
-    let currentUser;
+    let firmaAdToId = {};
 
     firebase.auth().onAuthStateChanged(async user => {
-      if (!user) return window.location.href = "login.html";
-      currentUser = user;
-      await firmalariYukle();
-      await scaleYukle();
+      if (!user) return;
+
+      const firmaSnap = await db.collection("users").doc(user.uid).collection("firms").get();
+      const firmaList = document.getElementById("firmalar");
+      firmaSnap.forEach(doc => {
+        const data = doc.data();
+        firmaAdToId[data.firmaAdi] = doc.id;
+        const option = document.createElement("option");
+        option.value = data.firmaAdi;
+        firmaList.appendChild(option);
+      });
+
+      const scaleSnap = await db.collection("users").doc(user.uid).collection("scales").get();
+      const scaleList = document.getElementById("scaleIds");
+      scaleSnap.forEach(doc => {
+        const option = document.createElement("option");
+        option.value = doc.id;
+        scaleList.appendChild(option);
+      });
     });
 
-    async function firmalariYukle() {
-      const firmaSelect = document.getElementById("firmaSelect");
-      const snapshot = await db.collection("users").doc(currentUser.uid).collection("firms").get();
-      snapshot.forEach(doc => {
-        const option = document.createElement("option");
-        option.value = doc.id;
-        option.textContent = doc.data().firmaAdi;
-        firmaSelect.appendChild(option);
-      });
-    }
-
-    async function scaleYukle() {
-      const scaleSelect = document.getElementById("scaleSelect");
-      const snapshot = await db.collection("users").doc(currentUser.uid).collection("scales").get();
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const option = document.createElement("option");
-        option.value = doc.id;
-        option.textContent = `${data.marka} - ${data.seriNo}`;
-        scaleSelect.appendChild(option);
-      });
-    }
-
     async function eslestir() {
-      const firmaId = document.getElementById("firmaSelect").value;
-      const scaleId = document.getElementById("scaleSelect").value;
-      if (!firmaId || !scaleId) return alert("Lütfen firma ve tartı aleti seçin.");
+      const user = firebase.auth().currentUser;
+      if (!user) return;
 
-      await db.collection("users").doc(currentUser.uid)
-        .collection("firms").doc(firmaId)
-        .update({
-          scaleIds: firebase.firestore.FieldValue.arrayUnion(scaleId)
-        });
+      const firmaAdi = document.getElementById("firmaInput").value.trim();
+      const scaleId = document.getElementById("scaleInput").value.trim();
+      const firmaId = firmaAdToId[firmaAdi];
+      const sonucDiv = document.getElementById("sonuc");
 
-      alert("Eşleştirme tamamlandı.");
+      if (!firmaId || !scaleId) {
+        sonucDiv.textContent = "Lütfen geçerli bir firma ve tartı aleti seçin.";
+        return;
+      }
+
+      const firmaRef = db.collection("users").doc(user.uid).collection("firms").doc(firmaId);
+      const firmaDoc = await firmaRef.get();
+      const mevcut = firmaDoc.exists && firmaDoc.data().scaleIds ? firmaDoc.data().scaleIds : [];
+
+      if (mevcut.includes(scaleId)) {
+        sonucDiv.textContent = "Bu tartı aleti zaten bu firmaya atanmış.";
+        return;
+      }
+
+      mevcut.push(scaleId);
+      await firmaRef.update({ scaleIds: mevcut });
+      sonucDiv.textContent = "Eşleştirme başarıyla tamamlandı.";
     }
   </script>
+
+  <style>
+    .input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 100%;
+    }
+  </style>
 </body>
 </html>
