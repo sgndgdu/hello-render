@@ -1,0 +1,62 @@
+<!-- muayene-adim1-sifir-kontrol.html -->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Muayene - Adım 1: Sıfır Kontrol</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen py-10">
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
+    <h1 class="text-2xl font-bold text-center mb-6 text-gray-800">Adım 1: Sıfır Kontrol Testi</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <input type="number" id="L0" placeholder="Min Yük (L0) [kg]" class="input">
+      <input type="number" id="I0" placeholder="Gösterge Değeri (I0)" class="input">
+      <input type="number" id="dL0" placeholder="İlave Yük (dL0)" class="input">
+      <input type="number" id="e" placeholder="e Değeri (0 kg fark)" class="input">
+    </div>
+
+    <div class="text-center">
+      <button onclick="hesaplaSifirKontrol()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded">Hesapla</button>
+    </div>
+
+    <div id="sonuc" class="mt-6 text-center text-lg font-semibold"></div>
+    <div class="mt-6 text-center">
+      <a href="muayene-adim2-tartim-performansi.html" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded inline-block">Sonraki Adım</a>
+    </div>
+  </div>
+
+  <style>
+    .input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 100%;
+    }
+  </style>
+
+  <script>
+    function hesaplaSifirKontrol() {
+      const L0 = parseFloat(document.getElementById("L0").value);
+      const I0 = parseFloat(document.getElementById("I0").value);
+      const dL0 = parseFloat(document.getElementById("dL0").value);
+      const e = parseFloat(document.getElementById("e").value);
+
+      if ([L0, I0, dL0, e].some(isNaN)) {
+        alert("Lütfen tüm alanları doldurun.");
+        return;
+      }
+
+      const E0 = I0 + (0.5 * e) - dL0 - L0;
+      const mih = e; // ±1e
+      const uygun = Math.abs(E0) <= mih;
+
+      const sonucDiv = document.getElementById("sonuc");
+      sonucDiv.innerHTML = uygun
+        ? `<span class='text-green-600'>✅ UYGUN</span><br>Sıfırdaki Hata (E0): ${E0.toFixed(2)} kg<br>MIH (±e): ${mih.toFixed(2)} kg`
+        : `<span class='text-red-600'>❌ UYGUN DEĞİL</span><br>Sıfırdaki Hata (E0): ${E0.toFixed(2)} kg<br>MIH (±e): ${mih.toFixed(2)} kg`;
+    }
+  </script>
+</body>
+</html>
