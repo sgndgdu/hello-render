@@ -143,27 +143,6 @@
     let scaleMap = {};
     let firmMap = {};
 
-    firebase.auth().onAuthStateChanged(user => {
-      if (!user) return window.location.href = "login.html";
-      db.collection("users").doc(user.uid).collection("scales").get().then(snapshot => {
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          const marka = data.marka;
-          const model = data.model;
-          if (!scaleMap[marka]) scaleMap[marka] = {};
-          if (!scaleMap[marka][model]) scaleMap[marka][model] = [];
-          scaleMap[marka][model].push({ id: doc.id, ...data });
-        });
-        const markaSelect = document.getElementById("marka");
-        Object.keys(scaleMap).forEach(marka => {
-          const opt = document.createElement("option");
-          opt.value = marka;
-          opt.textContent = marka;
-          markaSelect.appendChild(opt);
-        });
-      });
-    });
-
     <!-- Fotoğraf Yükleme ve Kaydet -->
     <div class="mb-6">
       <label class="text-sm text-gray-700">Muayene Fotoğrafları</label>
