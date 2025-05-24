@@ -79,70 +79,59 @@
 
       <!-- Diğer sekmeler (Köşe Yük, Tekrarlanabilirlik, Tartım Performansı) aynı mantıkla eklenebilir -->
       <div class="space-y-4">
-  <h3 class="text-lg font-semibold text-gray-800">Köşe Yük Testi</h3>
+  <     h3 class="text-lg font-semibold text-gray-800">Köşe Yük Testi</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input type="number" id="kose1" class="input" placeholder="1. Köşe Gösterge Değeri" />
+          <input type="number" id="kose2" class="input" placeholder="2. Köşe Gösterge Değeri" />
+          <input type="number" id="kose3" class="input" placeholder="3. Köşe Gösterge Değeri" />
+          <input type="number" id="kose4" class="input" placeholder="4. Köşe Gösterge Değeri" />
+          <input type="number" id="referansKose" class="input" placeholder="Referans Köşe Değeri" />
+          <input type="number" id="eDegeriKose" class="input" placeholder="e Değeri (bölüntü)" />
+        </div>
+        <div class="text-center">
+          <button onclick="hesaplaKoseYuk()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
+          Hesapla
+          </button>
+          </div>
+          <div id="koseSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
+          </div>
+          <div id="tab-tekrarlanabilirlik" class="tab-content mt-4">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Tekrarlanabilirlik Testi</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <input type="number" id="tekrar1" placeholder="1. Tartım Sonucu (kg)" class="input" />
+            <input type="number" id="tekrar2" placeholder="2. Tartım Sonucu (kg)" class="input" />
+            <input type="number" id="tekrar3" placeholder="3. Tartım Sonucu (kg)" class="input" />
+            <input type="number" id="eDegeriTekrar" placeholder="e Değeri (bölüntü)" class="input" />
+          </div>
+          <div class="text-center">
+            <button onclick="hesaplaTekrarlanabilirlik()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
+             Hesapla
+            </button>
+          </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <input type="number" id="kose1" class="input" placeholder="1. Köşe Gösterge Değeri" />
-    <input type="number" id="kose2" class="input" placeholder="2. Köşe Gösterge Değeri" />
-    <input type="number" id="kose3" class="input" placeholder="3. Köşe Gösterge Değeri" />
-    <input type="number" id="kose4" class="input" placeholder="4. Köşe Gösterge Değeri" />
-    <input type="number" id="referansKose" class="input" placeholder="Referans Köşe Değeri" />
-    <input type="number" id="eDegeriKose" class="input" placeholder="e Değeri (bölüntü)" />
-  </div>
-
-  <div class="text-center">
-    <button onclick="hesaplaKoseYuk()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
-      Hesapla
-    </button>
-  </div>
-
-  <div id="koseSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
-</div>
-      <div id="tab-tekrarlanabilirlik" class="tab-content mt-4">
-  <h3 class="text-lg font-semibold text-gray-800 mb-4">Tekrarlanabilirlik Testi</h3>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-    <input type="number" id="tekrar1" placeholder="1. Tartım Sonucu (kg)" class="input" />
-    <input type="number" id="tekrar2" placeholder="2. Tartım Sonucu (kg)" class="input" />
-    <input type="number" id="tekrar3" placeholder="3. Tartım Sonucu (kg)" class="input" />
-    <input type="number" id="eDegeriTekrar" placeholder="e Değeri (bölüntü)" class="input" />
-  </div>
-
-  <div class="text-center">
-    <button onclick="hesaplaTekrarlanabilirlik()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
-      Hesapla
-    </button>
-  </div>
-
-  <div id="tekrarSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
-</div>
-      <div id="tab-performans" class="tab-content mt-4">
-  <h3 class="text-lg font-semibold text-gray-800 mb-4">Tartım Performansı Testi</h3>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-    <input type="number" id="mihPerformans" placeholder="MİH (± kg)" class="input" />
-
-    <input type="number" id="L1" placeholder="1. Yük (kg)" class="input" />
-    <input type="number" id="I1" placeholder="1. Gösterge Değeri" class="input" />
-    <input type="number" id="dL1" placeholder="1. İlave Yük (ΔL)" class="input" />
-
-    <input type="number" id="L2" placeholder="2. Yük (kg)" class="input" />
-    <input type="number" id="I2" placeholder="2. Gösterge Değeri" class="input" />
-    <input type="number" id="dL2" placeholder="2. İlave Yük (ΔL)" class="input" />
-
-    <input type="number" id="L3" placeholder="3. Yük (kg)" class="input" />
-    <input type="number" id="I3" placeholder="3. Gösterge Değeri" class="input" />
-    <input type="number" id="dL3" placeholder="3. İlave Yük (ΔL)" class="input" />
-  </div>
-
-  <div class="text-center">
-    <button onclick="hesaplaPerformans()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
-      Hesapla
-    </button>
-  </div>
-
-  <div id="performansSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
-</div>
+          <div id="tekrarSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
+          </div>
+          <div id="tab-performans" class="tab-content mt-4">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Tartım Performansı Testi</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <input type="number" id="mihPerformans" placeholder="MİH (± kg)" class="input" />
+                <input type="number" id="L1" placeholder="1. Yük (kg)" class="input" />
+                <input type="number" id="I1" placeholder="1. Gösterge Değeri" class="input" />
+                <input type="number" id="dL1" placeholder="1. İlave Yük (ΔL)" class="input" />
+                <input type="number" id="L2" placeholder="2. Yük (kg)" class="input" />
+                <input type="number" id="I2" placeholder="2. Gösterge Değeri" class="input" />
+                <input type="number" id="dL2" placeholder="2. İlave Yük (ΔL)" class="input" />
+                <input type="number" id="L3" placeholder="3. Yük (kg)" class="input" />
+                <input type="number" id="I3" placeholder="3. Gösterge Değeri" class="input" />
+                <input type="number" id="dL3" placeholder="3. İlave Yük (ΔL)" class="input" />
+              </div>
+              <div class="text-center">
+                <button onclick="hesaplaPerformans()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
+                  Hesapla
+                </button>
+              </div>
+              <div id="performansSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
+          </div>
     </div>
 
     <div class="mb-6">
