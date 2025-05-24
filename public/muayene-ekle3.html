@@ -32,24 +32,29 @@
     <div id="scaleDetails" class="mb-6">
       <!-- Tartı aletine ait bilgiler burada gösterilecek -->
     </div>
+<!-- SEKME YAPISI BAŞLANGIÇ -->
+<div class="mb-6">
+  <div class="flex border-b border-gray-300">
+    <button class="tablink px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 focus:outline-none active-tab" onclick="openTab(event, 'tab-sifir')">Sıfır Kontrol</button>
+    <button class="tablink px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 focus:outline-none" onclick="openTab(event, 'tab-kose')">Köşe Yük</button>
+    <button class="tablink px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 focus:outline-none" onclick="openTab(event, 'tab-tekrar')">Tekrarlanabilirlik</button>
+    <button class="tablink px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 focus:outline-none" onclick="openTab(event, 'tab-tartim')">Tartım Performansı</button>
+  </div>
 
-    <!-- ADIM 1: Olçüm Alanlarını HTML'e Ekleme -->
-<!-- Bu kodu <div id="olcumGiris">...</div> bloğunun içine YERLEŞTİR -->
-<div id="olcumGiris" class="mb-6">
-  <h3 class="text-lg font-semibold text-gray-800 mb-4">Ölçüm Girişleri</h3>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <input type="number" id="gosterge0" placeholder="0 kg gösterge değeri" class="input" />
-    <input type="number" id="gosterge1" placeholder="1/2 Yük gösterge değeri" class="input" />
-    <input type="number" id="gosterge2" placeholder="Tam Yük gösterge değeri" class="input" />
-    <input type="number" id="gosterge3" placeholder="Tekrar 0 kg gösterge değeri" class="input" />
-    <input type="number" id="ilaveYuk" placeholder="İlave Yük (kg)" class="input" />
-    <input type="number" id="mih" placeholder="Mäş Gösterge Değeri (MIH)" class="input" />
+  <div id="tab-sifir" class="tab-content mt-4">
+    <!-- sifir-kontrol-testi.html içeriği buraya gelecek -->
   </div>
-  <div class="mt-4 text-center">
-    <button onclick="hesaplaSonuc()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded">Hesapla</button>
+  <div id="tab-kose" class="tab-content mt-4 hidden">
+    <!-- kose-yuk-testi.html içeriği buraya gelecek -->
   </div>
-  <div id="sonucBox" class="mt-4 text-left text-gray-700 space-y-2"></div>
+  <div id="tab-tekrar" class="tab-content mt-4 hidden">
+    <!-- tekrarlanabilirlik-testi.html içeriği buraya gelecek -->
+  </div>
+  <div id="tab-tartim" class="tab-content mt-4 hidden">
+    <!-- tartim-performans-testi.html içeriği buraya gelecek -->
+  </div>
 </div>
+<!-- SEKME YAPISI BİTİŞ -->
 
 <style>
   .input {
@@ -243,6 +248,22 @@
       border-radius: 6px;
       width: 100%;
     }
+  <script>
+  function openTab(evt, tabId) {
+    const tabs = document.querySelectorAll(".tab-content");
+    const buttons = document.querySelectorAll(".tablink");
+    tabs.forEach(tab => tab.classList.add("hidden"));
+    buttons.forEach(btn => btn.classList.remove("active-tab"));
+    document.getElementById(tabId).classList.remove("hidden");
+    evt.currentTarget.classList.add("active-tab");
+  }
+</script>
+<style>
+  .active-tab {
+    border-b-2: 2px solid #2563eb;
+    color: #2563eb !important;
+  }
+</style>
   </style>
 </body>
 </html>
