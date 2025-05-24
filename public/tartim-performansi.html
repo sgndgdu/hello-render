@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tartım Performansı Testi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 py-10 min-h-screen">
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
+    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Tartım Performansı Testi</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <input type="number" id="eDegeri" placeholder="e Değeri (kg)" class="input">
+      <input type="number" id="E0" placeholder="E0 (Sıfırdaki hata)" class="input">
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <input type="number" id="L1" placeholder="Yük 1 (L1)" class="input">
+      <input type="number" id="I1" placeholder="Gösterge 1 (I1)" class="input">
+      <input type="number" id="dL1" placeholder="İlave Yük 1 (ΔL1)" class="input">
+
+      <input type="number" id="L2" placeholder="Yük 2 (L2)" class="input">
+      <input type="number" id="I2" placeholder="Gösterge 2 (I2)" class="input">
+      <input type="number" id="dL2" placeholder="İlave Yük 2 (ΔL2)" class="input">
+
+      <input type="number" id="L3" placeholder="Yük 3 (L3)" class="input">
+      <input type="number" id="I3" placeholder="Gösterge 3 (I3)" class="input">
+      <input type="number" id="dL3" placeholder="İlave Yük 3 (ΔL3)" class="input">
+    </div>
+
+    <div class="text-center">
+      <button onclick="hesaplaPerformans()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded">Hesapla</button>
+    </div>
+
+    <div id="performansSonucu" class="mt-6 text-center text-lg text-gray-800"></div>
+  </div>
+
+  <script>
+    function hesaplaPerformans() {
+      const get = id => parseFloat(document.getElementById(id)?.value || "0");
+      const e = get("eDegeri");
+      const E0 = get("E0");
+      const MIH = e * 1.0;
+
+      const Ec = (I, L, dL) => (I + 0.5 * e - dL - L) - E0;
+
+      const Ec1 = Ec(get("I1"), get("L1"), get("dL1"));
+      const Ec2 = Ec(get("I2"), get("L2"), get("dL2"));
+      const Ec3 = Ec(get("I3"), get("L3"), get("dL3"));
+
+      const maxHata = Math.max(Math.abs(Ec1), Math.abs(Ec2), Math.abs(Ec3));
+      const uygun = maxHata <= MIH;
+
+      const div = document.getElementById("performansSonucu");
+      div.innerHTML = `
+        <p>Ec1: ${Ec1.toFixed(2)} kg, Ec2: ${Ec2.toFixed(2)} kg, Ec3: ${Ec3.toFixed(2)} kg</p>
+        <p>MİH (±1e): ${MIH.toFixed(2)} kg</p>
+        <p class="${uygun ? 'text-green-600' : 'text-red-600'} font-bold mt-2">Sonuç: ${uygun ? 'UYGUN ✅' : 'UYGUN DEĞİL ❌'}</p>
+      `;
+    }
+  </script>
+
+  <style>
+    .input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 100%;
+    }
+  </style>
+</body>
+</html>
