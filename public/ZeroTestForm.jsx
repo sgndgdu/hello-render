@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { exportToPDF } from "../utils/pdfExport";
+import { sendEmailWithText } from "../utils/sendEmail";
 
 const ZeroTestForm = () => {
   const [e, setE] = useState(0);
@@ -55,5 +57,26 @@ const ZeroTestForm = () => {
     </div>
   );
 };
+<div className="flex gap-4 mt-6">
+  <button
+    onClick={() => exportToPDF("printable-area", "sifir_kontrol_testi.pdf")}
+    className="bg-blue-600 text-white px-4 py-2 rounded shadow"
+  >
+    📄 PDF Olarak İndir
+  </button>
+
+  <button
+    onClick={() =>
+      sendEmailWithText({
+        toEmail: "deneme@example.com",
+        subject: "Muayene Formu",
+        message: "Muayene sonucu ekteki PDF dosyasındadır.",
+      })
+    }
+    className="bg-green-600 text-white px-4 py-2 rounded shadow"
+  >
+    📧 Mail Gönder
+  </button>
+</div>
 
 export default ZeroTestForm;
