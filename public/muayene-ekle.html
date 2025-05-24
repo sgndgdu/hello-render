@@ -113,42 +113,50 @@
     }
 
     function fillScaleAndFirmDetails() {
-      const marka = document.getElementById("marka").value;
-      const model = document.getElementById("model").value;
-      const seriNo = document.getElementById("seriNo").value;
-      const scale = scaleMap[marka]?.[model]?.find(s => s.seriNo === seriNo);
-      const scaleDiv = document.getElementById("scaleDetails");
-      const firmDiv = document.getElementById("firmDetails");
+  const marka = document.getElementById("marka").value;
+  const model = document.getElementById("model").value;
+  const seriNo = document.getElementById("seriNo").value;
 
-      if (scale) {
-        scaleDiv.innerHTML = `
-          <h3 class="text-lg font-semibold text-gray-800 mb-2">Tartı Aleti Bilgileri</h3>
-          <ul class="text-sm text-gray-700 space-y-1">
-            <li><strong>Model:</strong> ${scale.model || "-"}</li>
-            <li><strong>Max Kapasite:</strong> ${scale.maxKapasite || "-"}</li>
-            <li><strong>Üretim Yılı:</strong> ${scale.uretimYili || "-"}</li>
-            <li><strong>Tip Onay No:</strong> ${scale.tipOnayNo || "-"}</li>
-          </ul>
-        `;
+  const scale = scaleMap[marka]?.[model]?.find(s => s.seriNo === seriNo);
+  const scaleDiv = document.getElementById("scaleDetails");
+  const firmDiv = document.getElementById("firmDetails");
 
-        if (scale.firmaAdi || scale.firmaYetkilisi) {
-          firmDiv.innerHTML = `
-            <h3 class="text-lg font-semibold text-gray-800 mb-2">Firma Bilgileri</h3>
-            <ul class="text-sm text-gray-700 space-y-1">
-              <li><strong>Firma Adı:</strong> ${scale.firmaAdi || "-"}</li>
-              <li><strong>Yetkili:</strong> ${scale.firmaYetkilisi || "-"}</li>
-              <li><strong>İl/İlçe:</strong> ${scale.il || "-"} / ${scale.ilce || "-"}</li>
-              <li><strong>Telefon:</strong> ${scale.telefon || "-"}</li>
-            </ul>
-          `;
-        } else {
-          firmDiv.innerHTML = "";
-        }
-      } else {
-        scaleDiv.innerHTML = "";
-        firmDiv.innerHTML = "";
-      }
+  if (scale) {
+    scaleDiv.innerHTML = `
+      <h3 class="text-lg font-semibold text-gray-800 mb-2">Tartı Aleti Bilgileri</h3>
+      <ul class="text-sm text-gray-700 space-y-1">
+        <li><strong>Model:</strong> ${scale.model || "-"}</li>
+        <li><strong>Max Kapasite:</strong> ${scale.maxKapasite || "-"}</li>
+        <li><strong>Tip Onay No:</strong> ${scale.tipOnayNo || "-"}</li>
+        <li><strong>Üretim Yılı:</strong> ${scale.uretimYili || "-"}</li>
+      </ul>
+    `;
+
+    if (scale.firmId) {
+      db.collection("users").doc(firebase.auth().currentUser.uid).collection("firms").doc(scale.firmId)
+        .get()
+        .then(firmDoc => {
+          if (firmDoc.exists) {
+            const firm = firmDoc.data();
+            firmDiv.innerHTML = `
+              <h3 class="text-lg font-semibold text-gray-800 mb-2">Firma Bilgileri</h3>
+              <ul class="text-sm text-gray-700 space-y-1">
+                <li><strong>Firma Adı:</strong> ${firm.firmaAdi || "-"}</li>
+                <li><strong>Yetkili:</strong> ${firm.firmaYetkilisi || "-"}</li>
+                <li><strong>Telefon:</strong> ${firm.telefon || "-"}</li>
+                <li><strong>Adres:</strong> ${firm.il || ""}, ${firm.ilce || ""}, ${firm.ulke || ""}</li>
+                <li><strong>Vergi No:</strong> ${firm.vergiNo || "-"}</li>
+              </ul>
+            `;
+          } else {
+            firmDiv.innerHTML = `<p class="text-sm text-red-500">Firma bilgisi bulunamadı.</p>`;
+          }
+        });
+    } else {
+      firmDiv.innerHTML = `<p class="text-sm text-red-500">Tartı aletiyle eşleştirilmiş firma yok.</p>`;
     }
+  }
+}
   </script>
       <div id="tab-sifir" class="tab-content mt-4">
         <h3 class="text-lg font-semibold text-gray-800">Sıfır Kontrol Testi</h3>
