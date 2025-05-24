@@ -54,15 +54,102 @@
 
     <div id="firmDetails" class="mb-6"></div>
     <div id="scaleDetails" class="mb-6"></div>
+  </div>
 
-    <div class="mb-6">
-      <div class="flex border-b border-gray-300">
-        <button class="tablink px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 focus:outline-none active-tab" onclick="openTab(event, 'tab-sifir')">Sıfır Kontrol</button>
-        <button class="tablink px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 focus:outline-none" onclick="openTab(event, 'tab-kose')">Köşe Yük</button>
-        <button class="tablink px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 focus:outline-none" onclick="openTab(event, 'tab-tekrar')">Tekrarlanabilirlik</button>
-        <button class="tablink px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 focus:outline-none" onclick="openTab(event, 'tab-tartim')">Tartım Performansı</button>
-      </div>
+  <script>
+    const db = firebase.firestore();
+    let scaleMap = {};
 
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) return window.location.href = "login.html";
+      db.collection("users").doc(user.uid).collection("scales").get()
+        .then(snapshot => {
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            const { marka, model, seriNo } = data;
+            if (!scaleMap[marka]) scaleMap[marka] = {};
+            if (!scaleMap[marka][model]) scaleMap[marka][model] = [];
+            scaleMap[marka][model].push({ id: doc.id, ...data });
+          });
+
+          const markaSelect = document.getElementById("marka");
+          Object.keys(scaleMap).forEach(marka => {
+            const opt = document.createElement("option");
+            opt.value = marka;
+            opt.textContent = marka;
+            markaSelect.appendChild(opt);
+          });
+        });
+    });
+
+    function loadModelList() {
+      const marka = document.getElementById("marka").value;
+      const modelSelect = document.getElementById("model");
+      modelSelect.innerHTML = '<option value="">Seçiniz</option>';
+      document.getElementById("seriNo").innerHTML = '<option value="">Seçiniz</option>';
+      if (scaleMap[marka]) {
+        Object.keys(scaleMap[marka]).forEach(model => {
+          const opt = document.createElement("option");
+          opt.value = model;
+          opt.textContent = model;
+          modelSelect.appendChild(opt);
+        });
+      }
+    }
+
+    function loadSeriNoList() {
+      const marka = document.getElementById("marka").value;
+      const model = document.getElementById("model").value;
+      const seriSelect = document.getElementById("seriNo");
+      seriSelect.innerHTML = '<option value="">Seçiniz</option>';
+      if (scaleMap[marka] && scaleMap[marka][model]) {
+        scaleMap[marka][model].forEach(scale => {
+          const opt = document.createElement("option");
+          opt.value = scale.seriNo;
+          opt.textContent = scale.seriNo;
+          seriSelect.appendChild(opt);
+        });
+      }
+    }
+
+    function fillScaleAndFirmDetails() {
+      const marka = document.getElementById("marka").value;
+      const model = document.getElementById("model").value;
+      const seriNo = document.getElementById("seriNo").value;
+      const scale = scaleMap[marka]?.[model]?.find(s => s.seriNo === seriNo);
+      const scaleDiv = document.getElementById("scaleDetails");
+      const firmDiv = document.getElementById("firmDetails");
+
+      if (scale) {
+        scaleDiv.innerHTML = `
+          <h3 class="text-lg font-semibold text-gray-800 mb-2">Tartı Aleti Bilgileri</h3>
+          <ul class="text-sm text-gray-700 space-y-1">
+            <li><strong>Model:</strong> ${scale.model || "-"}</li>
+            <li><strong>Max Kapasite:</strong> ${scale.maxKapasite || "-"}</li>
+            <li><strong>Üretim Yılı:</strong> ${scale.uretimYili || "-"}</li>
+            <li><strong>Tip Onay No:</strong> ${scale.tipOnayNo || "-"}</li>
+          </ul>
+        `;
+
+        if (scale.firmaAdi || scale.firmaYetkilisi) {
+          firmDiv.innerHTML = `
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Firma Bilgileri</h3>
+            <ul class="text-sm text-gray-700 space-y-1">
+              <li><strong>Firma Adı:</strong> ${scale.firmaAdi || "-"}</li>
+              <li><strong>Yetkili:</strong> ${scale.firmaYetkilisi || "-"}</li>
+              <li><strong>İl/İlçe:</strong> ${scale.il || "-"} / ${scale.ilce || "-"}</li>
+              <li><strong>Telefon:</strong> ${scale.telefon || "-"}</li>
+            </ul>
+          `;
+        } else {
+          firmDiv.innerHTML = "";
+        }
+      } else {
+        scaleDiv.innerHTML = "";
+        firmDiv.innerHTML = "";
+      }
+    }
+  </script>
       <div id="tab-sifir" class="tab-content mt-4">
         <h3 class="text-lg font-semibold text-gray-800">Sıfır Kontrol Testi</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
