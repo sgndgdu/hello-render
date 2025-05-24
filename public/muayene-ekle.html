@@ -55,109 +55,6 @@
     <div id="firmDetails" class="mb-6"></div>
     <div id="scaleDetails" class="mb-6"></div>
 
-    <div id="testAlanlari"></div>
-
-    <div class="mb-6">
-      <label class="text-sm text-gray-700">Muayene Fotoğrafları</label>
-      <input type="file" id="fotoYukle" accept="image/*" multiple class="input" />
-    </div>
-
-    <div class="text-center">
-      <button onclick="kaydetMuayene()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Kaydet ve Gönder</button>
-    </div>
-  </div>
-
-  <script>
-    const db = firebase.firestore();
-    let scaleMap = {};
-    let firmMap = {};
-
-    firebase.auth().onAuthStateChanged(user => {
-      if (!user) return window.location.href = "login.html";
-      db.collection("users").doc(user.uid).collection("scales").get().then(snapshot => {
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          const marka = data.marka;
-          const model = data.model;
-          if (!scaleMap[marka]) scaleMap[marka] = {};
-          if (!scaleMap[marka][model]) scaleMap[marka][model] = [];
-          scaleMap[marka][model].push({ id: doc.id, ...data });
-        });
-        const markaSelect = document.getElementById("marka");
-        Object.keys(scaleMap).forEach(marka => {
-          const opt = document.createElement("option");
-          opt.value = marka;
-          opt.textContent = marka;
-          markaSelect.appendChild(opt);
-        });
-      });
-    });
-
-    function loadModelList() {
-      const marka = document.getElementById("marka").value;
-      const modelSelect = document.getElementById("model");
-      modelSelect.innerHTML = '<option value="">Seçiniz</option>';
-      if (scaleMap[marka]) {
-        Object.keys(scaleMap[marka]).forEach(model => {
-          const opt = document.createElement("option");
-          opt.value = model;
-          opt.textContent = model;
-          modelSelect.appendChild(opt);
-        });
-      }
-    }
-
-    function loadSeriNoList() {
-      const marka = document.getElementById("marka").value;
-      const model = document.getElementById("model").value;
-      const seriSelect = document.getElementById("seriNo");
-      seriSelect.innerHTML = '<option value="">Seçiniz</option>';
-      if (scaleMap[marka] && scaleMap[marka][model]) {
-        scaleMap[marka][model].forEach(scale => {
-          const opt = document.createElement("option");
-          opt.value = scale.seriNo;
-          opt.textContent = scale.seriNo;
-          seriSelect.appendChild(opt);
-        });
-      }
-    }
-
-    function fillScaleAndFirmDetails() {
-      const marka = document.getElementById("marka").value;
-      const model = document.getElementById("model").value;
-      const seriNo = document.getElementById("seriNo").value;
-      const scale = scaleMap[marka]?.[model]?.find(s => s.seriNo === seriNo);
-
-      if (scale) {
-        document.getElementById("scaleDetails").innerHTML = `
-          <h3 class="text-lg font-semibold text-gray-800 mb-2">Tartı Aleti Bilgileri</h3>
-          <ul class="text-sm text-gray-700 space-y-1">
-            <li><strong>Model:</strong> ${scale.model || "-"}</li>
-            <li><strong>Max Kapasite:</strong> ${scale.maxKapasite || "-"}</li>
-            <li><strong>Üretim Yılı:</strong> ${scale.uretimYili || "-"}</li>
-            <li><strong>Tip Onay No:</strong> ${scale.tipOnayNo || "-"}</li>
-          </ul>
-        `;
-
-        db.collection("users").doc(firebase.auth().currentUser.uid).collection("firms").doc(scale.firmaId).get()
-          .then(doc => {
-            const firm = doc.data();
-            document.getElementById("firmDetails").innerHTML = `
-              <h3 class="text-lg font-semibold text-gray-800 mb-2">Kullanıcı Firma Bilgileri</h3>
-              <ul class="text-sm text-gray-700 space-y-1">
-                <li><strong>Firma Adı:</strong> ${firm.firmaAdi || "-"}</li>
-                <li><strong>Yetkili:</strong> ${firm.firmaYetkilisi || "-"}</li>
-                <li><strong>Telefon:</strong> ${firm.telefon || "-"}</li>
-                <li><strong>Adres:</strong> ${firm.il || ""}, ${firm.ilce || ""}, ${firm.ulke || ""}</li>
-              </ul>
-            `;
-          });
-      }
-    }
-  </script>
-</body>
-</html>
-    <!-- SEKME YAPISI -->
     <div class="mb-6">
       <div class="flex border-b border-gray-300">
         <button class="tablink px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 focus:outline-none active-tab" onclick="openTab(event, 'tab-sifir')">Sıfır Kontrol</button>
@@ -230,6 +127,42 @@
         <div id="performansSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
       </div>
     </div>
+
+    <div class="mb-6">
+      <label class="text-sm text-gray-700">Muayene Fotoğrafları</label>
+      <input type="file" id="fotoYukle" accept="image/*" multiple class="input" />
+    </div>
+
+    <div class="text-center">
+      <button onclick="kaydetMuayene()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Kaydet ve Gönder</button>
+    </div>
+  </div>
+
+  <script>
+    const db = firebase.firestore();
+    let scaleMap = {};
+    let firmMap = {};
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) return window.location.href = "login.html";
+      db.collection("users").doc(user.uid).collection("scales").get().then(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const marka = data.marka;
+          const model = data.model;
+          if (!scaleMap[marka]) scaleMap[marka] = {};
+          if (!scaleMap[marka][model]) scaleMap[marka][model] = [];
+          scaleMap[marka][model].push({ id: doc.id, ...data });
+        });
+        const markaSelect = document.getElementById("marka");
+        Object.keys(scaleMap).forEach(marka => {
+          const opt = document.createElement("option");
+          opt.value = marka;
+          opt.textContent = marka;
+          markaSelect.appendChild(opt);
+        });
+      });
+    });
 
     <!-- Fotoğraf Yükleme ve Kaydet -->
     <div class="mb-6">
