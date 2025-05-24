@@ -1,0 +1,58 @@
+<!-- muayene-kose.html -->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Köşe Yük Testi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen py-10">
+  <div class="max-w-2xl mx-auto bg-white shadow-md rounded p-6">
+    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Köşe Yük Testi</h1>
+
+    <!-- Otomatik gelen değerler -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div>
+        <label class="text-sm text-gray-700">e (0 kg farkı)</label>
+        <input type="number" id="eDegeri" class="input" readonly value="" placeholder="Otomatik gelir" />
+      </div>
+      <div>
+        <label class="text-sm text-gray-700">E0 (Referans Hata)</label>
+        <input type="number" id="e0Degeri" class="input" readonly value="" placeholder="Otomatik gelir" />
+      </div>
+    </div>
+
+    <!-- Giriş alanları -->
+    <h2 class="text-lg font-semibold text-gray-800 mb-2">Köşe Gösterge Değerleri</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <input type="number" id="g1" placeholder="1. Köşe Gösterge (G1)" class="input" />
+      <input type="number" id="g2" placeholder="2. Köşe Gösterge (G2)" class="input" />
+      <input type="number" id="g3" placeholder="3. Köşe Gösterge (G3)" class="input" />
+      <input type="number" id="g4" placeholder="4. Köşe Gösterge (G4)" class="input" />
+    </div>
+
+    <div class="text-center">
+      <button onclick="hesaplaKoseTesti()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded">Hesapla</button>
+    </div>
+
+    <div id="koseSonuc" class="mt-6 text-center text-lg font-semibold text-gray-800"></div>
+  </div>
+
+  <script>
+    // Daha önceki testten alınan e ve E0 değerleri burada set edilebilir
+    document.getElementById("eDegeri").value = localStorage.getItem("eDegeri") || "";
+    document.getElementById("e0Degeri").value = localStorage.getItem("e0Degeri") || "";
+
+    function hesaplaKoseTesti() {
+      const e = parseFloat(document.getElementById("eDegeri").value);
+      const g1 = parseFloat(document.getElementById("g1").value);
+      const g2 = parseFloat(document.getElementById("g2").value);
+      const g3 = parseFloat(document.getElementById("g3").value);
+      const g4 = parseFloat(document.getElementById("g4").value);
+
+      if ([g1, g2, g3, g4].some(isNaN)) {
+        alert("Lütfen tüm köşe değerlerini girin.");
+        return;
+      }
+
+      const maxDeger =
