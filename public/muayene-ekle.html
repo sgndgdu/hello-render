@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Muayene Formu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 py-10">
+  <div class="max-w-5xl mx-auto bg-white p-6 rounded shadow">
+    <h2 class="text-2xl font-bold mb-4 text-blue-700">Muayene Formu</h2>
+
+    <!-- Tartı Aleti Seçimi -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div>
+        <label class="block text-sm text-gray-700 mb-1">Marka</label>
+        <select id="markaSelect" class="input" onchange="loadScales()"></select>
+      </div>
+      <div>
+        <label class="block text-sm text-gray-700 mb-1">Seri No</label>
+        <select id="seriNoSelect" class="input" onchange="loadScaleData()"></select>
+      </div>
+    </div>
+
+    <!-- Otomatik Doldurulacak Bilgiler -->
+    <div class="mb-4">
+      <h3 class="text-lg font-semibold text-green-700 mb-2">Tartı Aleti Bilgileri</h3>
+      <div id="scaleInfo" class="text-sm text-gray-600">Lütfen tartı aleti seçin.</div>
+    </div>
+
+    <!-- Ölçüm Sonuçları Girişi -->
+    <div class="mb-6">
+      <h3 class="text-lg font-semibold text-yellow-700 mb-2">Ölçüm Verileri</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input type="number" id="yuk1" placeholder="Yük 1 (kg)" class="input">
+        <input type="number" id="yuk2" placeholder="Yük 2 (kg)" class="input">
+        <input type="number" id="gosterge1" placeholder="Gösterge 1" class="input">
+        <input type="number" id="gosterge2" placeholder="Gösterge 2" class="input">
+      </div>
+    </div>
+
+    <!-- Muayene Tarihi ve Fotoğraf -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <input type="date" id="muayeneTarihi" class="input">
+      <input type="file" id="foto" class="input">
+    </div>
+
+    <!-- Sonuç -->
+    <div class="text-center mb-4">
+      <button onclick="hesaplaSonuc()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Sonucu Hesapla</button>
+      <p id="sonuc" class="mt-4 text-xl font-semibold text-green-700"></p>
+    </div>
+
+    <!-- Kayıt ve Gönder -->
+    <div class="text-center">
+      <button onclick="kaydetVeGonder()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded">Kaydet ve Gönder</button>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <script src="./firebase-config.js"></script>
+
+  <!-- JavaScript kodları bir sonraki adımda -->
+</body>
+</html>
