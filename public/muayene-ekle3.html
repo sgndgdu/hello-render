@@ -34,7 +34,34 @@
     </div>
 
     <div id="olcumGiris" class="mb-6">
-      <!-- Ölçüm verileri giriş alanları burada olacak (Sonraki adımda eklenecek) -->
+     <div id="olcumGiris" class="mb-6">
+  <h3 class="text-lg font-semibold text-gray-800 mb-2 mt-6">Ölçüm Girişleri</h3>
+  <p class="text-sm text-gray-600 mb-4">Tartı aletinin minimum, 1/3, 2/3 ve maksimum kapasite noktalarında yapılan ölçüm sonuçlarını giriniz.</p>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label class="text-sm text-gray-700">0 kg (e değeri)</label>
+      <input type="number" id="fark0" placeholder="0 kg farkı" class="input" />
+    </div>
+    <div>
+      <label class="text-sm text-gray-700">1/3 Yük Farkı</label>
+      <input type="number" id="fark1" placeholder="1/3 yükte fark" class="input" />
+    </div>
+    <div>
+      <label class="text-sm text-gray-700">2/3 Yük Farkı</label>
+      <input type="number" id="fark2" placeholder="2/3 yükte fark" class="input" />
+    </div>
+    <div>
+      <label class="text-sm text-gray-700">Tam Yük Farkı</label>
+      <input type="number" id="fark3" placeholder="Tam yükte fark" class="input" />
+    </div>
+  </div>
+
+  <div class="mt-4 text-center">
+    <button onclick="hesaplaSonuc()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded">Hesapla</button>
+  </div>
+  
+  <div id="sonucBox" class="mt-4 text-center text-lg font-semibold text-gray-800"></div>
+</div>
     </div>
 
     <div class="mb-6">
@@ -143,6 +170,49 @@
     sonucBox.innerHTML = `<span class="text-green-600">Sonuç: UYGUN ✅</span> <br> Maks. Sapma: ${maxSapma}`;
   } else {
     sonucBox.innerHTML = `<span class="text-red-600">Sonuç: UYGUN DEĞİL ❌</span> <br> Maks. Sapma: ${maxSapma}`;
+  }
+}
+    function hesaplaSonuc() {
+  const fark0 = parseFloat(document.getElementById("fark0").value);
+  const fark1 = parseFloat(document.getElementById("fark1").value);
+  const fark2 = parseFloat(document.getElementById("fark2").value);
+  const fark3 = parseFloat(document.getElementById("fark3").value);
+
+  if ([fark0, fark1, fark2, fark3].some(isNaN)) {
+    alert("Lütfen tüm ölçüm değerlerini girin.");
+    return;
+  }
+
+  // En büyük sapmayı hesapla
+  const maxSapma = Math.max(
+    Math.abs(fark0),
+    Math.abs(fark1),
+    Math.abs(fark2),
+    Math.abs(fark3)
+  );
+
+  // 0 kg'daki farkı referans alıyoruz
+  const eDegeri = Math.abs(fark0);
+
+  const uygunMu = maxSapma <= (eDegeri * 1); // tolerans ±1e
+  const sonucBox = document.getElementById("sonucBox");
+
+  if (uygunMu) {
+    sonucBox.innerHTML = `
+      <div class="text-green-600">
+        ✅ <strong>SONUÇ: UYGUN</strong><br>
+        Maks. Sapma: ${maxSapma.toFixed(2)} kg<br>
+        Tolerans (±e): ${eDegeri.toFixed(2)} kg
+      </div>
+    `;
+  } else {
+    sonucBox.innerHTML = `
+      <div class="text-red-600">
+        ❌ <strong>SONUÇ: UYGUN DEĞİL</strong><br>
+        Maks. Sapma: ${maxSapma.toFixed(2)} kg<br>
+        Tolerans (±e): ${eDegeri.toFixed(2)} kg
+      </div>
+    `;
   }
 }
   </script>
