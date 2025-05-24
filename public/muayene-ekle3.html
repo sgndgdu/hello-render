@@ -1,0 +1,124 @@
+<!-- muayene-ekle.html -->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Muayene Formu Ekle</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen py-10">
+  <div class="max-w-4xl mx-auto bg-white shadow-md rounded p-6">
+    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Tartı Aleti Muayene Formu</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="text-sm text-gray-700">Marka</label>
+        <select id="marka" class="input" onchange="loadSeriNoList()">
+          <option value="">Seçiniz</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-sm text-gray-700">Seri No</label>
+        <select id="seriNo" class="input" onchange="fillScaleDetails()">
+          <option value="">Seçiniz</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-sm text-gray-700">Muayene Tarihi</label>
+        <input type="date" id="muayeneTarihi" class="input" />
+      </div>
+    </div>
+
+    <div id="scaleDetails" class="mb-6">
+      <!-- Tartı aletine ait bilgiler burada gösterilecek -->
+    </div>
+
+    <div id="olcumGiris" class="mb-6">
+      <!-- Ölçüm verileri giriş alanları burada olacak (Sonraki adımda eklenecek) -->
+    </div>
+
+    <div class="mb-6">
+      <label class="text-sm text-gray-700">Muayene Fotoğrafları</label>
+      <input type="file" id="fotoYukle" accept="image/*" multiple class="input" />
+    </div>
+
+    <div class="text-center">
+      <button onclick="kaydetMuayene()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Kaydet ve Gönder</button>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <script src="./firebase-config.js"></script>
+  <script>
+    const db = firebase.firestore();
+    let scaleMap = {};
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) return window.location.href = "login.html";
+      db.collection("users").doc(user.uid).collection("scales").get()
+        .then(snapshot => {
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            const marka = data.marka;
+            const seriNo = data.seriNo;
+            if (!scaleMap[marka]) scaleMap[marka] = [];
+            scaleMap[marka].push({ id: doc.id, ...data });
+          });
+          const markaSelect = document.getElementById("marka");
+          Object.keys(scaleMap).forEach(marka => {
+            const opt = document.createElement("option");
+            opt.value = marka;
+            opt.textContent = marka;
+            markaSelect.appendChild(opt);
+          });
+        });
+    });
+
+    function loadSeriNoList() {
+      const marka = document.getElementById("marka").value;
+      const seriSelect = document.getElementById("seriNo");
+      seriSelect.innerHTML = '<option value="">Seçiniz</option>';
+      if (scaleMap[marka]) {
+        scaleMap[marka].forEach(scale => {
+          const opt = document.createElement("option");
+          opt.value = scale.seriNo;
+          opt.textContent = scale.seriNo;
+          seriSelect.appendChild(opt);
+        });
+      }
+    }
+
+    function fillScaleDetails() {
+      const marka = document.getElementById("marka").value;
+      const seriNo = document.getElementById("seriNo").value;
+      const detailsDiv = document.getElementById("scaleDetails");
+      const selected = scaleMap[marka]?.find(s => s.seriNo === seriNo);
+      if (selected) {
+        detailsDiv.innerHTML = `
+          <h3 class="text-lg font-semibold text-gray-800 mb-2">Seçilen Tartı Aleti</h3>
+          <ul class="text-sm text-gray-700 space-y-1">
+            <li><strong>Model:</strong> ${selected.model || "-"}</li>
+            <li><strong>Max Kapasite:</strong> ${selected.maxKapasite || "-"}</li>
+            <li><strong>Üretim Yılı:</strong> ${selected.uretimYili || "-"}</li>
+            <li><strong>Tip Onay No:</strong> ${selected.tipOnayNo || "-"}</li>
+          </ul>
+        `;
+      } else {
+        detailsDiv.innerHTML = "";
+      }
+    }
+  </script>
+
+  <style>
+    .input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 100%;
+    }
+  </style>
+</body>
+</html>
