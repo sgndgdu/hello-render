@@ -75,15 +75,6 @@
     <input type="number" id="eDegeriKose" class="input" placeholder="e Değeri (bölüntü)" />
   </div>
 
-  <div class="text-center">
-    <button onclick="hesaplaKoseYuk()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
-      Hesapla
-    </button>
-  </div>
-
-  <div id="koseSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
-</div>
-  </div>
   <div id="tab-tekrar" class="tab-content mt-4 hidden">
     <!-- tekrarlanabilirlik-testi.html içeriği buraya gelecek -->
     <div id="tab-tekrarlanabilirlik" class="tab-content mt-4">
@@ -107,7 +98,7 @@
   </div>
   <div id="tab-tartim" class="tab-content mt-4 hidden">
     <!-- tartim-performans-testi.html içeriği buraya gelecek -->
-    <div id="tab-performans" class="tab-content mt-4">
+  <div id="tab-performans" class="tab-content mt-4">
   <h3 class="text-lg font-semibold text-gray-800 mb-4">Tartım Performansı Testi</h3>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -126,56 +117,11 @@
     <input type="number" id="dL3" placeholder="3. İlave Yük (ΔL)" class="input" />
   </div>
 
-  <div class="text-center">
-    <button onclick="hesaplaPerformans()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
-      Hesapla
-    </button>
-  </div>
-
   <div id="performansSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
 </div>
   </div>
 </div>
 <!-- SEKME YAPISI BİTİŞ -->
-
-<style>
-  .input {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    width: 100%;
-  }
-</style>
-
-<!-- Tartım Performans Testi -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-  <input type="number" id="L1" placeholder="1. Yük (kg)" class="input" />
-  <input type="number" id="I1" placeholder="1. Gösterge Değeri" class="input" />
-  <input type="number" id="dL1" placeholder="1. ΔL (İlave Yük)" class="input" />
-
-  <input type="number" id="L2" placeholder="2. Yük (kg)" class="input" />
-  <input type="number" id="I2" placeholder="2. Gösterge Değeri" class="input" />
-  <input type="number" id="dL2" placeholder="2. ΔL (İlave Yük)" class="input" />
-
-  <input type="number" id="L3" placeholder="3. Yük (kg)" class="input" />
-  <input type="number" id="I3" placeholder="3. Gösterge Değeri" class="input" />
-  <input type="number" id="dL3" placeholder="3. ΔL (İlave Yük)" class="input" />
-</div>
-
-<div class="mt-4 text-center">
-  <button onclick="hesaplaMuayeneSonucu()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded">Hesapla</button>
-</div>
-
-<div id="muayeneSonucuBox" class="mt-4 text-center text-lg font-semibold text-gray-800"></div>
-
-  <div class="mt-4 text-center">
-    <button onclick="hesaplaSonuc()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded">Hesapla</button>
-  </div>
-  
-  <div id="sonucBox" class="mt-4 text-center text-lg font-semibold text-gray-800"></div>
-</div>
-    </div>
-
     <div class="mb-6">
       <label class="text-sm text-gray-700">Muayene Fotoğrafları</label>
       <input type="file" id="fotoYukle" accept="image/*" multiple class="input" />
@@ -249,19 +195,6 @@
         detailsDiv.innerHTML = "";
       }
     }
-    document.getElementById("olcumGiris").innerHTML = `
-  <h3 class="text-lg font-semibold text-gray-800 mb-2 mt-6">Ölçüm Girişleri</h3>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <input type="number" id="fark0" placeholder="0 kg farkı (e)" class="input" />
-    <input type="number" id="fark1" placeholder="1/3 yük farkı" class="input" />
-    <input type="number" id="fark2" placeholder="2/3 yük farkı" class="input" />
-    <input type="number" id="fark3" placeholder="Tam yük farkı" class="input" />
-  </div>
-  <div class="mt-4 text-center">
-    <button onclick="hesaplaSonuc()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded">Hesapla</button>
-  </div>
-  <div id="sonucBox" class="mt-4 text-center text-lg font-semibold text-gray-800"></div>
-`;
     function hesaplaMuayeneSonucu() {
   const e = parseFloat(document.getElementById("fark0")?.value || 0); // e değeri
   const maxKapasite = parseFloat(scaleMap[document.getElementById("marka").value]
@@ -289,13 +222,6 @@
     ? `<span class="text-green-600">✅ MUAYENE SONUCU: UYGUN</span><br>Maks. Hata: ${Math.max(Math.abs(Ec1), Math.abs(Ec2), Math.abs(Ec3)).toFixed(2)} kg<br>MİH: ±${mih.toFixed(2)} kg`
     : `<span class="text-red-600">❌ MUAYENE SONUCU: UYGUN DEĞİL</span><br>Maks. Hata: ${Math.max(Math.abs(Ec1), Math.abs(Ec2), Math.abs(Ec3)).toFixed(2)} kg<br>MİH: ±${mih.toFixed(2)} kg`;
 }
-    function hesaplaSonuc() {// ADIM 3: Gelişmiş hesaplama fonksiyonu
-  const getVal = (id) => parseFloat(document.getElementById(id)?.value || "");
-  const showUygun = (id, durum) => {
-    const span = document.getElementById(id);
-    span.textContent = durum ? "UYGUN" : "UYGUN DEĞİL";
-    span.className = durum ? "text-green-600 font-bold" : "text-red-600 font-bold";
-  };
 
   // e değeri (0 kg farkı)
   const e = getVal("fark0");
@@ -358,7 +284,8 @@
     ? `<span class="text-green-600">✅ UYGUN</span><br>Sıfırdaki Hata: ${hata.toFixed(2)} kg — MİH: ±${mih.toFixed(2)} kg`
     : `<span class="text-red-600">❌ UYGUN DEĞİL</span><br>Sıfırdaki Hata: ${hata.toFixed(2)} kg — MİH: ±${mih.toFixed(2)} kg`;
 }
-                                                                            function hesaplaKoseYuk() {
+                                                                            
+  function hesaplaKoseYuk() {
   const k1 = parseFloat(document.getElementById("kose1").value);
   const k2 = parseFloat(document.getElementById("kose2").value);
   const k3 = parseFloat(document.getElementById("kose3").value);
@@ -425,12 +352,6 @@
     : `<span class="text-red-600">❌ UYGUN DEĞİL</span><br>Maksimum Hata: ${maxHata.toFixed(3)} kg — MİH: ±${mih.toFixed(3)} kg`;
 }
 </script>
-<style>
-  .active-tab {
-    border-b-2: 2px solid #2563eb;
-    color: #2563eb !important;
-  }
 </style>
-  </style>
 </body>
 </html>
