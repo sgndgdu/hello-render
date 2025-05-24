@@ -401,6 +401,29 @@
     ? `<span class="text-green-600">✅ UYGUN</span><br>Standart Sapma: ${sapma.toFixed(4)} kg — Limit: ${(0.5 * e).toFixed(4)} kg`
     : `<span class="text-red-600">❌ UYGUN DEĞİL</span><br>Standart Sapma: ${sapma.toFixed(4)} kg — Limit: ${(0.5 * e).toFixed(4)} kg`;
 }
+                                                                            function hesaplaPerformans() {
+  const mih = parseFloat(document.getElementById("mihPerformans").value);
+
+  const L = [1, 2, 3].map(i => parseFloat(document.getElementById(`L${i}`).value));
+  const I = [1, 2, 3].map(i => parseFloat(document.getElementById(`I${i}`).value));
+  const dL = [1, 2, 3].map(i => parseFloat(document.getElementById(`dL${i}`).value));
+
+  if ([mih, ...L, ...I, ...dL].some(isNaN)) {
+    alert("Lütfen tüm alanları doldurun.");
+    return;
+  }
+
+  const hata = L.map((Lx, i) => {
+    return Math.abs(I[i] - (Lx + dL[i]));
+  });
+
+  const maxHata = Math.max(...hata);
+
+  const uygun = maxHata <= mih;
+  document.getElementById("performansSonuc").innerHTML = uygun
+    ? `<span class="text-green-600">✅ UYGUN</span><br>Maksimum Hata: ${maxHata.toFixed(3)} kg — MİH: ±${mih.toFixed(3)} kg`
+    : `<span class="text-red-600">❌ UYGUN DEĞİL</span><br>Maksimum Hata: ${maxHata.toFixed(3)} kg — MİH: ±${mih.toFixed(3)} kg`;
+}
 </script>
 <style>
   .active-tab {
