@@ -1,67 +1,131 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>Muayene Formu</title>
+  <meta charset="UTF-8" />
+  <title>Muayene Formu Ekle</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 100%;
+    }
+    .active-tab {
+      border-bottom: 2px solid #2563eb;
+      color: #2563eb !important;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 py-10">
-  <div class="max-w-5xl mx-auto bg-white p-6 rounded shadow">
-    <h2 class="text-2xl font-bold mb-4 text-blue-700">Muayene Formu</h2>
+<body class="bg-gray-100 min-h-screen py-10">
+  <div class="max-w-4xl mx-auto bg-white shadow-md rounded p-6">
+    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Tartı Aleti Muayene Formu</h1>
 
-    <!-- Tartı Aleti Seçimi -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
       <div>
-        <label class="block text-sm text-gray-700 mb-1">Marka</label>
-        <select id="markaSelect" class="input" onchange="loadScales()"></select>
+        <label class="text-sm text-gray-700">Marka</label>
+        <select id="marka" class="input" onchange="loadSeriNoList()">
+          <option value="">Seçiniz</option>
+        </select>
       </div>
       <div>
-        <label class="block text-sm text-gray-700 mb-1">Seri No</label>
-        <select id="seriNoSelect" class="input" onchange="loadScaleData()"></select>
+        <label class="text-sm text-gray-700">Seri No</label>
+        <select id="seriNo" class="input" onchange="fillScaleDetails()">
+          <option value="">Seçiniz</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-sm text-gray-700">Muayene Tarihi</label>
+        <input type="date" id="muayeneTarihi" class="input" />
       </div>
     </div>
 
-    <!-- Otomatik Doldurulacak Bilgiler -->
-    <div class="mb-4">
-      <h3 class="text-lg font-semibold text-green-700 mb-2">Tartı Aleti Bilgileri</h3>
-      <div id="scaleInfo" class="text-sm text-gray-600">Lütfen tartı aleti seçin.</div>
-    </div>
+    <div id="scaleDetails" class="mb-6"></div>
 
-    <!-- Ölçüm Sonuçları Girişi -->
+    <!-- SEKME YAPISI -->
     <div class="mb-6">
-      <h3 class="text-lg font-semibold text-yellow-700 mb-2">Ölçüm Verileri</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input type="number" id="yuk1" placeholder="Yük 1 (kg)" class="input">
-        <input type="number" id="yuk2" placeholder="Yük 2 (kg)" class="input">
-        <input type="number" id="gosterge1" placeholder="Gösterge 1" class="input">
-        <input type="number" id="gosterge2" placeholder="Gösterge 2" class="input">
+      <div class="flex border-b border-gray-300">
+        <button class="tablink px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 focus:outline-none active-tab" onclick="openTab(event, 'tab-sifir')">Sıfır Kontrol</button>
+        <button class="tablink px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 focus:outline-none" onclick="openTab(event, 'tab-kose')">Köşe Yük</button>
+        <button class="tablink px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 focus:outline-none" onclick="openTab(event, 'tab-tekrar')">Tekrarlanabilirlik</button>
+        <button class="tablink px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 focus:outline-none" onclick="openTab(event, 'tab-tartim')">Tartım Performansı</button>
+      </div>
+
+      <div id="tab-sifir" class="tab-content mt-4">
+        <h3 class="text-lg font-semibold text-gray-800">Sıfır Kontrol Testi</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input type="number" id="L0" class="input" placeholder="Min Yük (L0) kg" />
+          <input type="number" id="I0" class="input" placeholder="Gösterge Değeri (I0)" />
+          <input type="number" id="dL0" class="input" placeholder="İlave Yük (ΔL0)" />
+          <input type="number" id="eDegeri" class="input" placeholder="e Değeri (bölüntü)" />
+        </div>
+        <div class="text-center mt-4">
+          <button onclick="hesaplaSifirKontrol()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Hesapla</button>
+        </div>
+        <div id="sifirSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
+      </div>
+
+      <div id="tab-kose" class="tab-content mt-4 hidden">
+        <h3 class="text-lg font-semibold text-gray-800">Köşe Yük Testi</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input type="number" id="kose1" class="input" placeholder="1. Köşe Gösterge Değeri" />
+          <input type="number" id="kose2" class="input" placeholder="2. Köşe Gösterge Değeri" />
+          <input type="number" id="kose3" class="input" placeholder="3. Köşe Gösterge Değeri" />
+          <input type="number" id="kose4" class="input" placeholder="4. Köşe Gösterge Değeri" />
+          <input type="number" id="referansKose" class="input" placeholder="Referans Köşe Değeri" />
+          <input type="number" id="eDegeriKose" class="input" placeholder="e Değeri (bölüntü)" />
+        </div>
+        <div class="text-center mt-4">
+          <button onclick="hesaplaKoseYuk()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Hesapla</button>
+        </div>
+        <div id="koseSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
+      </div>
+
+      <div id="tab-tekrar" class="tab-content mt-4 hidden">
+        <h3 class="text-lg font-semibold text-gray-800">Tekrarlanabilirlik Testi</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input type="number" id="tekrar1" class="input" placeholder="1. Tartım Sonucu (kg)" />
+          <input type="number" id="tekrar2" class="input" placeholder="2. Tartım Sonucu (kg)" />
+          <input type="number" id="tekrar3" class="input" placeholder="3. Tartım Sonucu (kg)" />
+          <input type="number" id="eDegeriTekrar" class="input" placeholder="e Değeri (bölüntü)" />
+        </div>
+        <div class="text-center mt-4">
+          <button onclick="hesaplaTekrarlanabilirlik()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Hesapla</button>
+        </div>
+        <div id="tekrarSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
+      </div>
+
+      <div id="tab-tartim" class="tab-content mt-4 hidden">
+        <h3 class="text-lg font-semibold text-gray-800">Tartım Performansı Testi</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input type="number" id="mihPerformans" class="input" placeholder="MİH (± kg)" />
+          <input type="number" id="L1" class="input" placeholder="1. Yük (kg)" />
+          <input type="number" id="I1" class="input" placeholder="1. Gösterge Değeri" />
+          <input type="number" id="dL1" class="input" placeholder="1. İlave Yük (ΔL)" />
+          <input type="number" id="L2" class="input" placeholder="2. Yük (kg)" />
+          <input type="number" id="I2" class="input" placeholder="2. Gösterge Değeri" />
+          <input type="number" id="dL2" class="input" placeholder="2. İlave Yük (ΔL)" />
+          <input type="number" id="L3" class="input" placeholder="3. Yük (kg)" />
+          <input type="number" id="I3" class="input" placeholder="3. Gösterge Değeri" />
+          <input type="number" id="dL3" class="input" placeholder="3. İlave Yük (ΔL)" />
+        </div>
+        <div class="text-center mt-4">
+          <button onclick="hesaplaPerformans()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Hesapla</button>
+        </div>
+        <div id="performansSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
       </div>
     </div>
 
-    <!-- Muayene Tarihi ve Fotoğraf -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-      <input type="date" id="muayeneTarihi" class="input">
-      <input type="file" id="foto" class="input">
+    <!-- Fotoğraf Yükleme ve Kaydet -->
+    <div class="mb-6">
+      <label class="text-sm text-gray-700">Muayene Fotoğrafları</label>
+      <input type="file" id="fotoYukle" accept="image/*" multiple class="input" />
     </div>
-
-    <!-- Sonuç -->
-    <div class="text-center mb-4">
-      <button onclick="hesaplaSonuc()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Sonucu Hesapla</button>
-      <p id="sonuc" class="mt-4 text-xl font-semibold text-green-700"></p>
-    </div>
-
-    <!-- Kayıt ve Gönder -->
     <div class="text-center">
-      <button onclick="kaydetVeGonder()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded">Kaydet ve Gönder</button>
+      <button onclick="kaydetMuayene()" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Kaydet ve Gönder</button>
     </div>
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-  <script src="./firebase-config.js"></script>
-
-  <!-- JavaScript kodları bir sonraki adımda -->
+  <!-- Firebase ve Scriptler (devamı ayrı dosyada) -->
 </body>
 </html>
