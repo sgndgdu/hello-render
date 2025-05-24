@@ -202,48 +202,37 @@
     ? `<span class="text-green-600">✅ MUAYENE SONUCU: UYGUN</span><br>Maks. Hata: ${Math.max(Math.abs(Ec1), Math.abs(Ec2), Math.abs(Ec3)).toFixed(2)} kg<br>MİH: ±${mih.toFixed(2)} kg`
     : `<span class="text-red-600">❌ MUAYENE SONUCU: UYGUN DEĞİL</span><br>Maks. Hata: ${Math.max(Math.abs(Ec1), Math.abs(Ec2), Math.abs(Ec3)).toFixed(2)} kg<br>MİH: ±${mih.toFixed(2)} kg`;
 }
-    function hesaplaSonuc() {
-  const fark0 = parseFloat(document.getElementById("fark0").value);
-  const fark1 = parseFloat(document.getElementById("fark1").value);
-  const fark2 = parseFloat(document.getElementById("fark2").value);
-  const fark3 = parseFloat(document.getElementById("fark3").value);
+    function hesaplaSonuc() {// ADIM 3: Gelişmiş hesaplama fonksiyonu
+  const getVal = (id) => parseFloat(document.getElementById(id)?.value || "");
+  const showUygun = (id, durum) => {
+    const span = document.getElementById(id);
+    span.textContent = durum ? "UYGUN" : "UYGUN DEĞİL";
+    span.className = durum ? "text-green-600 font-bold" : "text-red-600 font-bold";
+  };
 
-  if ([fark0, fark1, fark2, fark3].some(isNaN)) {
-    alert("Lütfen tüm ölçüm değerlerini girin.");
-    return;
-  }
+  // e değeri (0 kg farkı)
+  const e = getVal("fark0");
 
-  // En büyük sapmayı hesapla
-  const maxSapma = Math.max(
-    Math.abs(fark0),
-    Math.abs(fark1),
-    Math.abs(fark2),
-    Math.abs(fark3)
-  );
+  // Diğer sapmalar
+  const fark1 = getVal("fark1");
+  const fark2 = getVal("fark2");
+  const fark3 = getVal("fark3");
+  const maxFark = Math.max(Math.abs(fark1), Math.abs(fark2), Math.abs(fark3));
+  const metrolojikUygun = maxFark <= e * 1.0;
+  showUygun("uygunlukSapma", metrolojikUygun);
 
-  // 0 kg'daki farkı referans alıyoruz
-  const eDegeri = Math.abs(fark0);
+  // Tekrarlanabilirlik hesaplama: fark0, fark1, fark2
+  const values = [fark1, fark2, fark3];
+  const ortalama = values.reduce((a, b) => a + b, 0) / values.length;
+  const sapma = Math.sqrt(values.reduce((a, b) => a + Math.pow(b - ortalama, 2), 0) / values.length);
+  const tekrarlanabilirlikUygun = sapma <= (0.5 * e);
+  showUygun("uygunlukTekrarlanabilirlik", tekrarlanabilirlikUygun);
 
-  const uygunMu = maxSapma <= (eDegeri * 1); // tolerans ±1e
-  const sonucBox = document.getElementById("sonucBox");
-
-  if (uygunMu) {
-    sonucBox.innerHTML = `
-      <div class="text-green-600">
-        ✅ <strong>SONUÇ: UYGUN</strong><br>
-        Maks. Sapma: ${maxSapma.toFixed(2)} kg<br>
-        Tolerans (±e): ${eDegeri.toFixed(2)} kg
-      </div>
-    `;
-  } else {
-    sonucBox.innerHTML = `
-      <div class="text-red-600">
-        ❌ <strong>SONUÇ: UYGUN DEĞİL</strong><br>
-        Maks. Sapma: ${maxSapma.toFixed(2)} kg<br>
-        Tolerans (±e): ${eDegeri.toFixed(2)} kg
-      </div>
-    `;
-  }
+  // Eğer her şey uygunsa genel sonucu ver
+  const genelUygun = metrolojikUygun && tekrarlanabilirlikUygun;
+  document.getElementById("sonucBox").innerHTML = genelUygun
+    ? `<span class="text-green-700 text-lg">SONUÇ: METROLOJİK OLARAK UYGUN ✅</span>`
+    : `<span class="text-red-700 text-lg">SONUÇ: METROLOJİK OLARAK UYGUN DEĞİL ❌</span>`;
 }
   </script>
 
