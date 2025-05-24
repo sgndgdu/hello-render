@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Tekrarlanabilirlik Testi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen py-10">
+  <div class="max-w-2xl mx-auto bg-white p-6 rounded shadow">
+    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Tekrarlanabilirlik Testi</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <input type="number" id="tekrar1" placeholder="1. Tartım (kg)" class="input">
+      <input type="number" id="tekrar2" placeholder="2. Tartım (kg)" class="input">
+      <input type="number" id="tekrar3" placeholder="3. Tartım (kg)" class="input">
+    </div>
+
+    <div class="text-center">
+      <button onclick="hesaplaTekrarlanabilirlik()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Hesapla</button>
+    </div>
+
+    <div id="tekrarSonuc" class="mt-4 text-center text-lg font-semibold text-gray-800"></div>
+  </div>
+
+  <script>
+    function hesaplaTekrarlanabilirlik() {
+      const v1 = parseFloat(document.getElementById("tekrar1").value);
+      const v2 = parseFloat(document.getElementById("tekrar2").value);
+      const v3 = parseFloat(document.getElementById("tekrar3").value);
+
+      if ([v1, v2, v3].some(isNaN)) {
+        alert("Lütfen tüm tartım değerlerini girin.");
+        return;
+      }
+
+      const ortalama = (v1 + v2 + v3) / 3;
+      const sapma = Math.sqrt(((v1 - ortalama) ** 2 + (v2 - ortalama) ** 2 + (v3 - ortalama) ** 2) / 3);
+
+      const e = 1; // Örnek sabit e değeri, veritabanından alınabilir
+      const tolerans = 0.5 * e;
+
+      const sonucDiv = document.getElementById("tekrarSonuc");
+      if (sapma <= tolerans) {
+        sonucDiv.innerHTML = `<span class="text-green-600">✅ UYGUN</span><br>Standart Sapma: ${sapma.toFixed(3)} kg`;
+      } else {
+        sonucDiv.innerHTML = `<span class="text-red-600">❌ UYGUN DEĞİL</span><br>Standart Sapma: ${sapma.toFixed(3)} kg`;
+      }
+    }
+  </script>
+
+  <style>
+    .input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 100%;
+    }
+  </style>
+</body>
+</html>
