@@ -54,6 +54,15 @@
 
     <div id="firmDetails" class="mb-6"></div>
     <div id="scaleDetails" class="mb-6"></div>
+
+    <div class="mb-6">
+      <label class="text-sm text-gray-700">Muayene Fotoğrafları</label>
+      <input type="file" id="fotoYukle" accept="image/*" multiple class="input" />
+    </div>
+
+    <div class="text-center">
+      <button onclick="kaydetMuayene()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Kaydet ve Gönder</button>
+    </div>
   </div>
 
   <script>
@@ -119,7 +128,8 @@
       const scale = scaleMap[marka]?.[model]?.find(s => s.seriNo === seriNo);
       const scaleDiv = document.getElementById("scaleDetails");
       const firmDiv = document.getElementById("firmDetails");
-      const scaleId = `${scale.marka}-${scale.seriNo}`;
+      const scaleId = `${marka}-${seriNo}`;
+
       if (scale) {
         scaleDiv.innerHTML = `
           <h3 class="text-lg font-semibold text-gray-800 mb-2">Tartı Aleti Bilgileri</h3>
@@ -131,31 +141,29 @@
           </ul>
         `;
 
-        db.collection("users").doc(firebase.auth().currentUser.uid).collection("firms").get()
-        .then(snapshot => {
+        const firmsSnapshot = await db.collection("users").doc(user.uid).collection("firms").get();
         let matchedFirm = null;
-        snapshot.forEach(doc => {
-        const data = doc.data();
-        if ((data.scaleIds || []).includes(scaleId)) {
-        matchedFirm = data;
-        }
-      });
-
-          const firmDiv = document.getElementById("firmDetails");
-          if (matchedFirm) {
-          firmDiv.innerHTML = `
-          <h3 class="text-lg font-semibold text-gray-800 mb-2">Firma Bilgileri</h3>
-          <ul class="text-sm text-gray-700 space-y-1">
-          <li><strong>Firma Adı:</strong> ${matchedFirm.firmaAdi || "-"}</li>
-          <li><strong>Yetkili:</strong> ${matchedFirm.firmaYetkilisi || "-"}</li>
-          <li><strong>Adres:</strong> ${matchedFirm.il || "-"}, ${matchedFirm.ilce || "-"}</li>
-          </ul>
-            `;
-          } else {
-            firmDiv.innerHTML = "<p class='text-sm text-red-500'>Bu tartı aletiyle eşleştirilmiş firma bulunamadı.</p>";
-            }
+        firmsSnapshot.forEach(doc => {
+          const data = doc.data();
+          if ((data.scaleIds || []).includes(scaleId)) {
+            matchedFirm = data;
+          }
         });
-  </script>
+
+        if (matchedFirm) {
+          firmDiv.innerHTML = `
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Firma Bilgileri</h3>
+            <ul class="text-sm text-gray-700 space-y-1">
+              <li><strong>Firma Adı:</strong> ${matchedFirm.firmaAdi || "-"}</li>
+              <li><strong>Yetkili:</strong> ${matchedFirm.firmaYetkilisi || "-"}</li>
+              <li><strong>Adres:</strong> ${matchedFirm.il || "-"}, ${matchedFirm.ilce || "-"}</li>
+            </ul>
+          `;
+        } else {
+          firmDiv.innerHTML = "<p class='text-sm text-red-500'>Bu tartı aletiyle eşleştirilmiş firma bulunamadı.</p>";
+        }
+      }
+    }
       <div id="tab-sifir" class="tab-content mt-4">
         <h3 class="text-lg font-semibold text-gray-800">Sıfır Kontrol Testi</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -235,7 +243,7 @@
     const db = firebase.firestore();
     let scaleMap = {};
     let firmMap = {};
-
+  </script>
     <!-- Fotoğraf Yükleme ve Kaydet -->
     <div class="mb-6">
       <label class="text-sm text-gray-700">Muayene Fotoğrafları</label>
@@ -247,6 +255,6 @@
   </div>
 
   <!-- Firebase ve Scriptler (devamı ayrı dosyada) -->
-  </script>
+
 </body>
 </html>
