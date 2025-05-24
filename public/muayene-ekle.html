@@ -198,51 +198,52 @@
         });
       }
     }
-
     async function fillScaleAndFirmDetails() {
-      const marka = document.getElementById("marka").value;
-      const model = document.getElementById("model").value;
-      const seriNo = document.getElementById("seriNo").value.trim();
-      const user = firebase.auth().currentUser;
-      const scale = scaleMap[marka]?.[model]?.find(s => s.seriNo === seriNo);
-      const scaleDiv = document.getElementById("scaleDetails");
-      const firmDiv = document.getElementById("firmDetails");
-      const scaleId = `${marka}-${seriNo}`;
+  const marka = document.getElementById("marka").value;
+  const model = document.getElementById("model").value;
+  const seriNo = document.getElementById("seriNo").value.trim();
+  const user = firebase.auth().currentUser;
+  const scale = scaleMap[marka]?.[model]?.find(s => s.seriNo === seriNo);
+  const scaleDiv = document.getElementById("scaleDetails");
+  const firmDiv = document.getElementById("firmDetails");
 
-      if (scale) {
-        scaleDiv.innerHTML = `
-          <h3 class="text-lg font-semibold text-gray-800 mb-2">Tartı Aleti Bilgileri</h3>
-          <ul class="text-sm text-gray-700 space-y-1">
-            <li><strong>Model:</strong> ${scale.model || "-"}</li>
-            <li><strong>Max Kapasite:</strong> ${scale.maxKapasite || "-"}</li>
-            <li><strong>Tip Onay No:</strong> ${scale.tipOnayNo || "-"}</li>
-            <li><strong>Üretim Yılı:</strong> ${scale.uretimYili || "-"}</li>
-          </ul>
-        `;
+  if (scale) {
+    const scaleId = scale.id; // 🔑 Doğru ID
 
-        const firmSnapshot = await db.collection("users").doc(user.uid).collection("firms").get();
-        let matchedFirm = null;
-        firmSnapshot.forEach(doc => {
-          const data = doc.data();
-          if ((data.scaleIds || []).includes(scaleId)) {
-            matchedFirm = data;
-          }
-        });
+    scaleDiv.innerHTML = `
+      <h3 class="text-lg font-semibold text-gray-800 mb-2">Tartı Aleti Bilgileri</h3>
+      <ul class="text-sm text-gray-700 space-y-1">
+        <li><strong>Model:</strong> ${scale.model || "-"}</li>
+        <li><strong>Max Kapasite:</strong> ${scale.maxKapasite || "-"}</li>
+        <li><strong>Tip Onay No:</strong> ${scale.tipOnayNo || "-"}</li>
+        <li><strong>Üretim Yılı:</strong> ${scale.uretimYili || "-"}</li>
+      </ul>
+    `;
 
-        if (matchedFirm) {
-          firmDiv.innerHTML = `
-            <h3 class="text-lg font-semibold text-gray-800 mb-2">Firma Bilgileri</h3>
-            <ul class="text-sm text-gray-700 space-y-1">
-              <li><strong>Firma Adı:</strong> ${matchedFirm.firmaAdi || "-"}</li>
-              <li><strong>Yetkili:</strong> ${matchedFirm.firmaYetkilisi || "-"}</li>
-              <li><strong>Adres:</strong> ${matchedFirm.il || "-"}, ${matchedFirm.ilce || "-"}</li>
-            </ul>
-          `;
-        } else {
-          firmDiv.innerHTML = "<p class='text-sm text-red-500'>Bu tartı aletiyle eşleştirilmiş firma bulunamadı.</p>";
-        }
+    const firmSnapshot = await db.collection("users").doc(user.uid).collection("firms").get();
+    let matchedFirm = null;
+
+    firmSnapshot.forEach(doc => {
+      const data = doc.data();
+      if ((data.scaleIds || []).includes(scaleId)) {
+        matchedFirm = data;
       }
+    });
+
+    if (matchedFirm) {
+      firmDiv.innerHTML = `
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Firma Bilgileri</h3>
+        <ul class="text-sm text-gray-700 space-y-1">
+          <li><strong>Firma Adı:</strong> ${matchedFirm.firmaAdi || "-"}</li>
+          <li><strong>Yetkili:</strong> ${matchedFirm.firmaYetkilisi || "-"}</li>
+          <li><strong>Adres:</strong> ${matchedFirm.il || "-"}, ${matchedFirm.ilce || "-"}</li>
+        </ul>
+      `;
+    } else {
+      firmDiv.innerHTML = "<p class='text-sm text-red-500'>Bu tartı aletiyle eşleştirilmiş firma bulunamadı.</p>";
     }
+  }
+}
   </script>
 </body>
 </html>
