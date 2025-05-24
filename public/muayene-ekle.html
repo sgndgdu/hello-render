@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
@@ -24,73 +23,15 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
       <div>
         <label class="text-sm text-gray-700">Marka</label>
-        <script>
-  const db = firebase.firestore();
-  let scaleMap = {};
-
-  firebase.auth().onAuthStateChanged(user => {
-    if (!user) return window.location.href = "login.html";
-
-    // Verileri çek ve scaleMap'i oluştur
-    db.collection("users").doc(user.uid).collection("scales").get()
-      .then(snapshot => {
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          const marka = data.marka;
-          const seriNo = data.seriNo;
-          if (!scaleMap[marka]) scaleMap[marka] = [];
-          scaleMap[marka].push({ id: doc.id, ...data });
-        });
-
-        // Marka dropdown'ını doldur
-        const markaSelect = document.getElementById("marka");
-        Object.keys(scaleMap).forEach(marka => {
-          const opt = document.createElement("option");
-          opt.value = marka;
-          opt.textContent = marka;
-          markaSelect.appendChild(opt);
-        });
-      });
-  });
-
-  // Marka değişince seri no listesi
-  function loadSeriNoList() {
-    const marka = document.getElementById("marka").value;
-    const seriSelect = document.getElementById("seriNo");
-    seriSelect.innerHTML = '<option value="">Seçiniz</option>';
-
-    if (scaleMap[marka]) {
-      scaleMap[marka].forEach(scale => {
-        const opt = document.createElement("option");
-        opt.value = scale.seriNo;
-        opt.textContent = scale.seriNo;
-        seriSelect.appendChild(opt);
-      });
-    }
-  }
-
-  // Seçilen seri no'ya göre detay göster
-  function fillScaleDetails() {
-    const marka = document.getElementById("marka").value;
-    const seriNo = document.getElementById("seriNo").value;
-    const detailsDiv = document.getElementById("scaleDetails");
-
-    const selected = scaleMap[marka]?.find(s => s.seriNo === seriNo);
-    if (selected) {
-      detailsDiv.innerHTML = `
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">Seçilen Tartı Aleti</h3>
-        <ul class="text-sm text-gray-700 space-y-1">
-          <li><strong>Model:</strong> ${selected.model || "-"}</li>
-          <li><strong>Max Kapasite:</strong> ${selected.maxKapasite || "-"}</li>
-          <li><strong>Üretim Yılı:</strong> ${selected.uretimYili || "-"}</li>
-          <li><strong>Tip Onay No:</strong> ${selected.tipOnayNo || "-"}</li>
-        </ul>
-      `;
-    } else {
-      detailsDiv.innerHTML = "";
-    }
-  }
-</script>
+        <select id="marka" class="input" onchange="loadSeriNoList()">
+          <option value="">Seçiniz</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-sm text-gray-700">Seri No</label>
+        <select id="seriNo" class="input" onchange="fillScaleDetails()">
+          <option value="">Seçiniz</option>
+        </select>
       </div>
       <div>
         <label class="text-sm text-gray-700">Muayene Tarihi</label>
@@ -99,6 +40,83 @@
     </div>
 
     <div id="scaleDetails" class="mb-6"></div>
+
+    <div class="mb-6">
+      <label class="text-sm text-gray-700">Muayene Fotoğrafları</label>
+      <input type="file" id="fotoYukle" accept="image/*" multiple class="input" />
+    </div>
+
+    <div class="text-center">
+      <button onclick="kaydetMuayene()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Kaydet ve Gönder</button>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <script src="./firebase-config.js"></script>
+  <script>
+    const db = firebase.firestore();
+    let scaleMap = {};
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) return window.location.href = "login.html";
+      db.collection("users").doc(user.uid).collection("scales").get()
+        .then(snapshot => {
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            const marka = data.marka;
+            const seriNo = data.seriNo;
+            if (!scaleMap[marka]) scaleMap[marka] = [];
+            scaleMap[marka].push({ id: doc.id, ...data });
+          });
+
+          const markaSelect = document.getElementById("marka");
+          Object.keys(scaleMap).forEach(marka => {
+            const opt = document.createElement("option");
+            opt.value = marka;
+            opt.textContent = marka;
+            markaSelect.appendChild(opt);
+          });
+        });
+    });
+
+    function loadSeriNoList() {
+      const marka = document.getElementById("marka").value;
+      const seriSelect = document.getElementById("seriNo");
+      seriSelect.innerHTML = '<option value="">Seçiniz</option>';
+
+      if (scaleMap[marka]) {
+        scaleMap[marka].forEach(scale => {
+          const opt = document.createElement("option");
+          opt.value = scale.seriNo;
+          opt.textContent = scale.seriNo;
+          seriSelect.appendChild(opt);
+        });
+      }
+    }
+
+    function fillScaleDetails() {
+      const marka = document.getElementById("marka").value;
+      const seriNo = document.getElementById("seriNo").value;
+      const detailsDiv = document.getElementById("scaleDetails");
+
+      const selected = scaleMap[marka]?.find(s => s.seriNo === seriNo);
+      if (selected) {
+        detailsDiv.innerHTML = `
+          <h3 class="text-lg font-semibold text-gray-800 mb-2">Seçilen Tartı Aleti</h3>
+          <ul class="text-sm text-gray-700 space-y-1">
+            <li><strong>Model:</strong> ${selected.model || "-"}</li>
+            <li><strong>Max Kapasite:</strong> ${selected.maxKapasite || "-"}</li>
+            <li><strong>Üretim Yılı:</strong> ${selected.uretimYili || "-"}</li>
+            <li><strong>Tip Onay No:</strong> ${selected.tipOnayNo || "-"}</li>
+          </ul>
+        `;
+      } else {
+        detailsDiv.innerHTML = "";
+      }
+    }
 
     <!-- SEKME YAPISI -->
     <div class="mb-6">
