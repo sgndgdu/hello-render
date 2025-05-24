@@ -55,4 +55,26 @@
         return;
       }
 
-      const maxDeger =
+      const maxDeger = Math.max(g1, g2, g3, g4);
+      const minDeger = Math.min(g1, g2, g3, g4);
+      const fark = maxDeger - minDeger;
+
+      const uygun = fark <= e;
+      const sonucBox = document.getElementById("koseSonuc");
+
+      sonucBox.innerHTML = uygun
+        ? `<span class='text-green-600'>✅ KÖŞE YÜK TESTİ: UYGUN</span><br>Maksimum Fark: ${fark.toFixed(2)} kg &le; e: ${e.toFixed(2)} kg`
+        : `<span class='text-red-600'>❌ KÖŞE YÜK TESTİ: UYGUN DEĞİL</span><br>Maksimum Fark: ${fark.toFixed(2)} kg &gt; e: ${e.toFixed(2)} kg`;
+    }
+  </script>
+
+  <style>
+    .input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      width: 100%;
+    }
+  </style>
+</body>
+</html>
