@@ -132,29 +132,19 @@
       </ul>
     `;
 
-    if (scale.firmId) {
-      db.collection("users").doc(firebase.auth().currentUser.uid).collection("firms").doc(scale.firmId)
-        .get()
-        .then(firmDoc => {
-          if (firmDoc.exists) {
-            const firm = firmDoc.data();
-            firmDiv.innerHTML = `
-              <h3 class="text-lg font-semibold text-gray-800 mb-2">Firma Bilgileri</h3>
-              <ul class="text-sm text-gray-700 space-y-1">
-                <li><strong>Firma Adı:</strong> ${firm.firmaAdi || "-"}</li>
-                <li><strong>Yetkili:</strong> ${firm.firmaYetkilisi || "-"}</li>
-                <li><strong>Telefon:</strong> ${firm.telefon || "-"}</li>
-                <li><strong>Adres:</strong> ${firm.il || ""}, ${firm.ilce || ""}, ${firm.ulke || ""}</li>
-                <li><strong>Vergi No:</strong> ${firm.vergiNo || "-"}</li>
-              </ul>
-            `;
-          } else {
-            firmDiv.innerHTML = `<p class="text-sm text-red-500">Firma bilgisi bulunamadı.</p>`;
-          }
-        });
-    } else {
-      firmDiv.innerHTML = `<p class="text-sm text-red-500">Tartı aletiyle eşleştirilmiş firma yok.</p>`;
-    }
+    if (matchedFirm) {
+  const firmDiv = document.getElementById("firmDetails");
+  firmDiv.innerHTML = `
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">Firma Bilgileri</h3>
+    <ul class="text-sm text-gray-700 space-y-1">
+      <li><strong>Firma Adı:</strong> ${matchedFirm.firmaAdi || "-"}</li>
+      <li><strong>Yetkili:</strong> ${matchedFirm.firmaYetkilisi || "-"}</li>
+      <li><strong>Adres:</strong> ${matchedFirm.il || "-"}, ${matchedFirm.ilce || "-"}</li>
+    </ul>
+  `;
+} else {
+  document.getElementById("firmDetails").innerHTML = "<p class='text-sm text-red-500'>Bu tartı aletiyle eşleştirilmiş firma bulunamadı.</p>";
+}
   }
 }
   </script>
