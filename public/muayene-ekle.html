@@ -119,7 +119,7 @@
       const scale = scaleMap[marka]?.[model]?.find(s => s.seriNo === seriNo);
       const scaleDiv = document.getElementById("scaleDetails");
       const firmDiv = document.getElementById("firmDetails");
-
+      const scaleId = `${scale.marka}-${scale.seriNo}`;
       if (scale) {
         scaleDiv.innerHTML = `
           <h3 class="text-lg font-semibold text-gray-800 mb-2">Tartı Aleti Bilgileri</h3>
@@ -131,31 +131,30 @@
           </ul>
         `;
 
-        const firmSnapshot = await db.collection("users").doc(user.uid).collection("firms").get();
+        db.collection("users").doc(firebase.auth().currentUser.uid).collection("firms").get()
+        .then(snapshot => {
         let matchedFirm = null;
-
-        firmSnapshot.forEach(doc => {
-          const data = doc.data();
-          const scaleIds = data.scaleIds || [];
-          if (scaleIds.includes(seriNo)) {
-            matchedFirm = { id: doc.id, ...data };
-          }
-        });
-
-        if (matchedFirm) {
-          firmDiv.innerHTML = `
-            <h3 class="text-lg font-semibold text-gray-800 mb-2">Firma Bilgileri</h3>
-            <ul class="text-sm text-gray-700 space-y-1">
-              <li><strong>Firma Adı:</strong> ${matchedFirm.firmaAdi || "-"}</li>
-              <li><strong>Yetkili:</strong> ${matchedFirm.firmaYetkilisi || "-"}</li>
-              <li><strong>Adres:</strong> ${matchedFirm.il || "-"}, ${matchedFirm.ilce || "-"}</li>
-            </ul>
-          `;
-        } else {
-          firmDiv.innerHTML = "<p class='text-sm text-red-500'>Bu tartı aletiyle eşleştirilmiş firma bulunamadı.</p>";
+        snapshot.forEach(doc => {
+        const data = doc.data();
+        if ((data.scaleIds || []).includes(scaleId)) {
+        matchedFirm = data;
         }
-      }
-    }
+      });
+
+          const firmDiv = document.getElementById("firmDetails");
+          if (matchedFirm) {
+          firmDiv.innerHTML = `
+          <h3 class="text-lg font-semibold text-gray-800 mb-2">Firma Bilgileri</h3>
+          <ul class="text-sm text-gray-700 space-y-1">
+          <li><strong>Firma Adı:</strong> ${matchedFirm.firmaAdi || "-"}</li>
+          <li><strong>Yetkili:</strong> ${matchedFirm.firmaYetkilisi || "-"}</li>
+          <li><strong>Adres:</strong> ${matchedFirm.il || "-"}, ${matchedFirm.ilce || "-"}</li>
+          </ul>
+            `;
+          } else {
+            firmDiv.innerHTML = "<p class='text-sm text-red-500'>Bu tartı aletiyle eşleştirilmiş firma bulunamadı.</p>";
+            }
+        });
   </script>
       <div id="tab-sifir" class="tab-content mt-4">
         <h3 class="text-lg font-semibold text-gray-800">Sıfır Kontrol Testi</h3>
