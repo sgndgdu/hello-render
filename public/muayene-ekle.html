@@ -83,14 +83,17 @@
       <div class="mt-6 mb-4">
         <h3 class="text-xl font-bold text-gray-800 mb-4">Köşe Yük Testi</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div><input type="number" id="eDegeriKose" class="input" placeholder="e Değeri (bölüntü)" /></div>
-          <div><input type="number" id="E0" class="input" placeholder="Sıfırdaki Hata E0" /></div>
-          <div><input type="number" id="mihKose" class="input" placeholder="MİH (± kg)" /></div>
-          ${[1, 2, 3, 4, 5, 6].map(i => `
-            <input type="number" id="L${i}" class="input" placeholder="${i}. Köşe Yük (L${i}) kg" />
-            <input type="number" id="I${i}" class="input" placeholder="${i}. Gösterge (I${i})" />
-            <input type="number" id="dL${i}" class="input" placeholder="${i}. İlave Yük (ΔL${i})" />
-          `).join("")}
+          <div id="koseInputsContainer"></div>
+          <script>
+            const container = document.getElementById("koseInputsContainer");
+            for (let i = 1; i <= 6; i++) {
+              container.innerHTML += `
+      <input type="number" id="L${i}" class="input" placeholder="${i}. Köşe Yük (L${i}) kg" />
+      <input type="number" id="I${i}" class="input" placeholder="${i}. Gösterge (I${i})" />
+      <input type="number" id="dL${i}" class="input" placeholder="${i}. İlave Yük (ΔL${i})" />
+    `;
+  }
+</script>
         </div>
         <div class="text-center mt-4">
           <button onclick="hesaplaKoseYuk()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Hesapla</button>
