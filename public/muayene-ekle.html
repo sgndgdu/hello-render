@@ -63,19 +63,47 @@
         <button class="tablink px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 focus:outline-none" onclick="openTab(event, 'tab-tartim')">Tartım Performansı</button>
       </div>
 
-      <div id="tab-sifir" class="tab-content mt-4">
-        <h3 class="text-lg font-semibold text-gray-800">Sıfır Kontrol Testi</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input type="number" id="L0" class="input" placeholder="Min Yük (L0) kg" />
-          <input type="number" id="I0" class="input" placeholder="Gösterge Değeri (I0)" />
-          <input type="number" id="dL0" class="input" placeholder="İlave Yük (ΔL0)" />
-          <input type="number" id="eDegeri" class="input" placeholder="e Değeri (bölüntü)" />
-        </div>
-        <div class="text-center mt-4">
-          <button onclick="hesaplaSifirKontrol()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Hesapla</button>
-        </div>
-        <div id="sifirSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
-      </div>
+     <div id="tab-sifir" class="tab-content mt-4">
+    <h3 class="text-lg font-semibold text-gray-800">Sıfır Kontrol Testi</h3>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+         <input type="number" id="L0" class="input" placeholder="Uygulanan Yük (L0) kg" />
+         <input type="number" id="I0" class="input" placeholder="Gösterge Değeri (I0)" />
+         <input type="number" id="dL0" class="input" placeholder="İlave Yük (ΔL0)" />
+         <input type="number" id="eDegeri" class="input" placeholder="e Değeri (bölüntü)" />
+       </div>
+       <div class="text-center mt-4">
+         <button onclick="hesaplaSifirKontrol()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Hesapla</button>
+       </div>
+       <div id="sifirSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
+     </div>
+
+<script>
+  function hesaplaSifirKontrol() {
+    const L0 = parseFloat(document.getElementById("L0").value);
+    const I0 = parseFloat(document.getElementById("I0").value);
+    const dL0 = parseFloat(document.getElementById("dL0").value);
+    const e = parseFloat(document.getElementById("eDegeri").value);
+    const sonucDiv = document.getElementById("sifirSonuc");
+
+    if (isNaN(L0) || isNaN(I0) || isNaN(dL0) || isNaN(e)) {
+      sonucDiv.innerHTML = `<p class="text-red-600">Lütfen tüm alanları doldurunuz.</p>`;
+      return;
+    }
+
+    const E0 = I0 + 0.5 * e - dL0 - L0;
+    const MIH = 0.25 * e;
+    const uygun = Math.abs(E0) <= MIH;
+
+    sonucDiv.innerHTML = `
+      <p class="text-gray-800">E0 = I0 + 0.5e - ΔL0 - L0</p>
+      <p>Hesaplanan E0: <strong>${E0.toFixed(3)} kg</strong></p>
+      <p>MİH (±0.25e): <strong>${MIH.toFixed(3)} kg</strong></p>
+      <p class="${uygun ? 'text-green-600' : 'text-red-600'} font-bold">
+        ${uygun ? "UYGUN ✅" : "UYGUN DEĞİL ❌"}
+      </p>
+    `;
+  }
+</script>
 
       <!-- Diğer sekmeler (Köşe Yük, Tekrarlanabilirlik, Tartım Performansı) aynı mantıkla eklenebilir -->
       <div class="space-y-4">
