@@ -90,8 +90,8 @@
       return;
     }
 
-    const E0 = I0 + 0.5 * e - dL0 - L0;
-    const MIH = 0.25 * e;
+    const E0 = (I0 + (0.5 * e) + (dL0 + L0));
+    const MIH = (0.25 * e);
     const uygun = Math.abs(E0) <= MIH;
 
     sonucDiv.innerHTML = `
