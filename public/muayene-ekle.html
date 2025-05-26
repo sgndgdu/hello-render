@@ -64,41 +64,86 @@
       </div>
 
      <div id="tab-sifir" class="tab-content mt-4">
-    <h3 class="text-lg font-semibold text-gray-800">Sıfır Kontrol Testi</h3>
-       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-         <input type="number" id="L0" class="input" placeholder="Uygulanan Yük (L0) kg" />
-         <input type="number" id="I0" class="input" placeholder="Gösterge Değeri (I0)" />
-         <input type="number" id="dL0" class="input" placeholder="İlave Yük (ΔL0)" />
-         <input type="number" id="eDegeri" class="input" placeholder="e Değeri (bölüntü)" />
-       </div>
-       <div class="text-center mt-4">
-         <button onclick="hesaplaSifirKontrol()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Hesapla</button>
-       </div>
-       <div id="sifirSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
-     </div>
+  <h3 class="text-lg font-semibold text-gray-800 mb-4">Sıfır Kontrol Testi</h3>
+
+  <!-- Genişletilmiş Gösterge Tertibatı Seçimi -->
+  <div class="mb-4">
+    <label class="text-sm text-gray-700 font-medium">Genişletilmiş Gösterge Tertibatı Var mı?</label>
+    <select id="genisletilmisVarMi" class="input mt-1" onchange="toggleDeltaInput()">
+      <option value="">Seçiniz</option>
+      <option value="evet">Evet</option>
+      <option value="hayir">Hayır</option>
+    </select>
+  </div>
+
+  <!-- Test Girdi Alanları -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <input type="number" id="L0" class="input" placeholder="Uygulanan Yük (L0) kg" />
+    <input type="number" id="I0" class="input" placeholder="Gösterge Değeri (I0)" />
+
+    <!-- ΔL0 sadece 'hayır' seçilirse görünür -->
+    <div id="deltaContainer">
+      <input type="number" id="dL0" class="input" placeholder="İlave Yük (ΔL0)" />
+    </div>
+
+    <input type="number" id="eDegeri" class="input" placeholder="e Değeri (bölüntü)" />
+  </div>
+
+  <!-- Hesaplama Butonu -->
+  <div class="text-center mt-4">
+    <button onclick="hesaplaSifirKontrol()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Hesapla</button>
+  </div>
+
+  <!-- Sonuç Alanı -->
+  <div id="sifirSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
+</div>
 
 <script>
+  function toggleDeltaInput() {
+    const select = document.getElementById("genisletilmisVarMi").value;
+    const deltaContainer = document.getElementById("deltaContainer");
+    if (select === "evet") {
+      deltaContainer.style.display = "none";
+    } else {
+      deltaContainer.style.display = "block";
+    }
+  }
+
   function hesaplaSifirKontrol() {
     const L0 = parseFloat(document.getElementById("L0").value);
     const I0 = parseFloat(document.getElementById("I0").value);
-    const dL0 = parseFloat(document.getElementById("dL0").value);
     const e = parseFloat(document.getElementById("eDegeri").value);
+    const secim = document.getElementById("genisletilmisVarMi").value;
     const sonucDiv = document.getElementById("sifirSonuc");
 
-    if (isNaN(L0) || isNaN(I0) || isNaN(dL0) || isNaN(e)) {
+    if (isNaN(L0) || isNaN(I0) || isNaN(e) || !secim) {
       sonucDiv.innerHTML = `<p class="text-red-600">Lütfen tüm alanları doldurunuz.</p>`;
       return;
     }
 
-    const E0 = (I0 + (0.5 * e) + (dL0 + L0));
-    const MIH = (0.25 * e);
+    let E0, formül, deltaGerekli = secim === "hayir";
+    let MIH = 0.25 * e;
+
+    if (deltaGerekli) {
+      const dL0 = parseFloat(document.getElementById("dL0").value);
+      if (isNaN(dL0)) {
+        sonucDiv.innerHTML = `<p class="text-red-600">ΔL0 (ilave yük) değeri gerekli.</p>`;
+        return;
+      }
+      E0 = I0 + 0.5 * e - dL0 - L0;
+      formül = "E0 = I0 + 0.5e - ΔL0 - L0";
+    } else {
+      E0 = I0 - L0;
+      formül = "E0 = I0 - L0";
+    }
+
     const uygun = Math.abs(E0) <= MIH;
 
     sonucDiv.innerHTML = `
-      <p class="text-gray-800">E0 = I0 + 0.5e - ΔL0 - L0</p>
+      <p class="text-gray-800 mb-2"><strong>${formül}</strong></p>
       <p>Hesaplanan E0: <strong>${E0.toFixed(3)} kg</strong></p>
       <p>MİH (±0.25e): <strong>${MIH.toFixed(3)} kg</strong></p>
-      <p class="${uygun ? 'text-green-600' : 'text-red-600'} font-bold">
+      <p class="${uygun ? 'text-green-600' : 'text-red-600'} font-bold mt-2">
         ${uygun ? "UYGUN ✅" : "UYGUN DEĞİL ❌"}
       </p>
     `;
