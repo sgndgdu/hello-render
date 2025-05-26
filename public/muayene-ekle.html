@@ -76,7 +76,152 @@
       <button onclick="kaydetMuayene()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Kaydet ve Gönder</button>
     </div>
   </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <input type="number" id="L0" class="input" placeholder="Uygulanan Yük (L0) kg" />
+    <input type="number" id="I0" class="input" placeholder="Gösterge Değeri (I0)" />
 
+    <!-- ΔL0 sadece 'hayır' seçilirse görünür -->
+    <div id="deltaContainer">
+      <input type="number" id="dL0" class="input" placeholder="İlave Yük (ΔL0)" />
+    </div>
+
+    <input type="number" id="eDegeri" class="input" placeholder="e Değeri (bölüntü)" />
+  </div>
+
+  <!-- Hesaplama Butonu -->
+  <div class="text-center mt-4">
+    <button onclick="hesaplaSifirKontrol()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Hesapla</button>
+  </div>
+
+  <!-- Sonuç Alanı -->
+  <div id="sifirSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
+</div>
+
+<script>
+  function toggleDeltaInput() {
+    const select = document.getElementById("genisletilmisVarMi").value;
+    const deltaContainer = document.getElementById("deltaContainer");
+    if (select === "evet") {
+      deltaContainer.style.display = "none";
+    } else {
+      deltaContainer.style.display = "block";
+    }
+  }
+
+  function hesaplaSifirKontrol() {
+    const L0 = parseFloat(document.getElementById("L0").value);
+    const I0 = parseFloat(document.getElementById("I0").value);
+    const e = parseFloat(document.getElementById("eDegeri").value);
+    const secim = document.getElementById("genisletilmisVarMi").value;
+    const sonucDiv = document.getElementById("sifirSonuc");
+
+    if (isNaN(L0) || isNaN(I0) || isNaN(e) || !secim) {
+      sonucDiv.innerHTML = `<p class="text-red-600">Lütfen tüm alanları doldurunuz.</p>`;
+      return;
+    }
+
+    let E0, formül, deltaGerekli = secim === "hayir";
+    let MIH = 0.25 * e;
+
+    if (deltaGerekli) {
+      const dL0 = parseFloat(document.getElementById("dL0").value);
+      if (isNaN(dL0)) {
+        sonucDiv.innerHTML = `<p class="text-red-600">ΔL0 (ilave yük) değeri gerekli.</p>`;
+        return;
+      }
+      E0 = I0 + 0.5 * e - dL0 - L0;
+      formül = "E0 = I0 + 0.5e - ΔL0 - L0";
+    } else {
+      E0 = I0 - L0;
+      formül = "E0 = I0 - L0";
+    }
+
+    const uygun = Math.abs(E0) <= MIH;
+
+    sonucDiv.innerHTML = `
+      <p class="text-gray-800 mb-2"><strong>${formül}</strong></p>
+      <p>Hesaplanan E0: <strong>${E0.toFixed(3)} kg</strong></p>
+      <p>MİH (±0.25e): <strong>${MIH.toFixed(3)} kg</strong></p>
+      <p class="${uygun ? 'text-green-600' : 'text-red-600'} font-bold mt-2">
+        ${uygun ? "UYGUN ✅" : "UYGUN DEĞİL ❌"}
+      </p>
+    `;
+  }
+</script>
+
+  <div class="mt-6 mb-4">
+  <h3 class="text-xl font-bold text-gray-800 mb-4">Köşe Yük Testi</h3>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div><input type="number" id="eDegeriKose" class="input" placeholder="e Değeri (bölüntü)" /></div>
+    <div><input type="number" id="E0" class="input" placeholder="Sıfırdaki Hata E0" /></div>
+    <div><input type="number" id="mihKose" class="input" placeholder="MİH (± kg)" /></div>
+
+    <!-- 6 Köşe İçin Giriş Alanları -->
+    <div><input type="number" id="L1" class="input" placeholder="1. Köşe Yük (L1) kg" /></div>
+    <div><input type="number" id="I1" class="input" placeholder="1. Gösterge (I1)" /></div>
+    <div><input type="number" id="dL1" class="input" placeholder="1. İlave Yük (ΔL1)" /></div>
+
+    <div><input type="number" id="L2" class="input" placeholder="2. Köşe Yük (L2) kg" /></div>
+    <div><input type="number" id="I2" class="input" placeholder="2. Gösterge (I2)" /></div>
+    <div><input type="number" id="dL2" class="input" placeholder="2. İlave Yük (ΔL2)" /></div>
+
+    <div><input type="number" id="L3" class="input" placeholder="3. Köşe Yük (L3) kg" /></div>
+    <div><input type="number" id="I3" class="input" placeholder="3. Gösterge (I3)" /></div>
+    <div><input type="number" id="dL3" class="input" placeholder="3. İlave Yük (ΔL3)" /></div>
+
+    <div><input type="number" id="L4" class="input" placeholder="4. Köşe Yük (L4) kg" /></div>
+    <div><input type="number" id="I4" class="input" placeholder="4. Gösterge (I4)" /></div>
+    <div><input type="number" id="dL4" class="input" placeholder="4. İlave Yük (ΔL4)" /></div>
+
+    <div><input type="number" id="L5" class="input" placeholder="5. Köşe Yük (L5) kg" /></div>
+    <div><input type="number" id="I5" class="input" placeholder="5. Gösterge (I5)" /></div>
+    <div><input type="number" id="dL5" class="input" placeholder="5. İlave Yük (ΔL5)" /></div>
+
+    <div><input type="number" id="L6" class="input" placeholder="6. Köşe Yük (L6) kg" /></div>
+    <div><input type="number" id="I6" class="input" placeholder="6. Gösterge (I6)" /></div>
+    <div><input type="number" id="dL6" class="input" placeholder="6. İlave Yük (ΔL6)" /></div>
+  </div>
+
+  <div class="text-center mt-4">
+    <button onclick="hesaplaKoseYuk()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Hesapla</button>
+  </div>
+
+  <div id="koseSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
+</div>
+  <script>
+function hesaplaKoseYuk() {
+  const e = parseFloat(document.getElementById("eDegeriKose").value);
+  const E0 = parseFloat(document.getElementById("E0").value);
+  const mih = parseFloat(document.getElementById("mihKose").value);
+  let sonucHTML = "";
+
+  for (let i = 1; i <= 6; i++) {
+    const L = parseFloat(document.getElementById(`L${i}`).value);
+    const I = parseFloat(document.getElementById(`I${i}`).value);
+    const dL = parseFloat(document.getElementById(`dL${i}`).value);
+
+    if (isNaN(L) || isNaN(I) || (!ggtVarMi && isNaN(dL))) {
+      sonucHTML += `<p class="text-red-500">${i}. köşe için eksik veri!</p>`;
+      continue;
+    }
+
+    let E = ggtVarMi ? I - L : I + 0.5 * e - dL - L;
+    let Ec = E - E0;
+    const uygunMu = Math.abs(Ec) <= Math.abs(mih);
+
+    sonucHTML += `
+      <div class="mb-2">
+        <p><strong>${i}. Köşe:</strong> E=${E.toFixed(2)}, Ec=${Ec.toFixed(2)} → 
+        ${uygunMu ? "<span class='text-green-600 font-semibold'>Uygun</span>" : "<span class='text-red-600 font-semibold'>Uygun Değil</span>"}</p>
+      </div>
+    `;
+  }
+
+  document.getElementById("koseSonuc").innerHTML = sonucHTML;
+}
+</script>
+  
   <script>
     const db = firebase.firestore();
     let scaleMap = {}, ggtVarMi = null;
