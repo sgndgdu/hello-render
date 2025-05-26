@@ -107,7 +107,57 @@
       deltaContainer.style.display = "block";
     }
   }
+ let sonE0 = null;  // GLOBAL değişkenler
+  let sonE = null;
 
+  function hesaplaSifirKontrol() {
+    const L0 = parseFloat(document.getElementById("L0").value);
+    const I0 = parseFloat(document.getElementById("I0").value);
+    const e = parseFloat(document.getElementById("eDegeri").value);
+    const secim = document.getElementById("ggtSecimi").value;
+    const sonucDiv = document.getElementById("sifirSonuc");
+
+    if (isNaN(L0) || isNaN(I0) || isNaN(e) || !secim) {
+      sonucDiv.innerHTML = `<p class="text-red-600">Lütfen tüm alanları doldurunuz.</p>`;
+      return;
+    }
+
+    let E0, formül;
+    const deltaGerekli = secim === "yok";
+    const MIH = 0.25 * e;
+
+    if (deltaGerekli) {
+      const dL0 = parseFloat(document.getElementById("dL0").value);
+      if (isNaN(dL0)) {
+        sonucDiv.innerHTML = `<p class="text-red-600">ΔL0 (ilave yük) değeri gerekli.</p>`;
+        return;
+      }
+      E0 = I0 + 0.5 * e - dL0 - L0;
+      formül = "E0 = I0 + 0.5e - ΔL0 - L0";
+    } else {
+      E0 = I0 - L0;
+      formül = "E0 = I0 - L0";
+    }
+
+    const uygun = Math.abs(E0) <= MIH;
+
+    sonucDiv.innerHTML = `
+      <p class="text-gray-800 mb-2"><strong>${formül}</strong></p>
+      <p>Hesaplanan E0: <strong>${E0.toFixed(3)} kg</strong></p>
+      <p>MİH (±0.25e): <strong>${MIH.toFixed(3)} kg</strong></p>
+      <p class="${uygun ? 'text-green-600' : 'text-red-600'} font-bold mt-2">
+        ${uygun ? "UYGUN ✅" : "UYGUN DEĞİL ❌"}
+      </p>
+    `;
+
+    // ✅ Diğer test alanlarına aktar
+    document.getElementById("eDegeriKose").value = e.toFixed(3);
+    document.getElementById("E0").value = E0.toFixed(3);
+
+    // ✅ Global değişkenlere de ata (ileride başka testlerde de kullanırsan diye)
+    sonE = e;
+    sonE0 = E0;
+  }
   function hesaplaSifirKontrol() {
     const L0 = parseFloat(document.getElementById("L0").value);
     const I0 = parseFloat(document.getElementById("I0").value);
@@ -209,7 +259,8 @@ function hesaplaKoseYuk() {
     let E = ggtVarMi ? I - L : I + 0.5 * e - dL - L;
     let Ec = E - E0;
     const uygunMu = Math.abs(Ec) <= Math.abs(mih);
-
+    document.getElementById("eDegeriKose").value = e.toFixed(3);
+    document.getElementById("E0").value = E0.toFixed(3);
     sonucHTML += `
       <div class="mb-2">
         <p><strong>${i}. Köşe:</strong> E=${E.toFixed(2)}, Ec=${Ec.toFixed(2)} → 
