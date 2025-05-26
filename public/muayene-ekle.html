@@ -7,7 +7,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
   <script src="./firebase-config.js"></script>
   <style>
     .input {
@@ -63,167 +62,128 @@
         <button class="tablink px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 focus:outline-none" onclick="openTab(event, 'tab-tartim')">Tartım Performansı</button>
       </div>
 
-     <div id="tab-sifir" class="tab-content mt-4">
-  <h3 class="text-lg font-semibold text-gray-800 mb-4">Sıfır Kontrol Testi</h3>
+      <!-- Sıfır Kontrol Testi -->
+      <div id="tab-sifir" class="tab-content mt-4">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Sıfır Kontrol Testi</h3>
+        <div class="mb-4">
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Genişletilmiş Gösterge Tertibatı mevcut mu?</label>
+          <select id="ggtSecimi" class="input" onchange="ggtDurumunuGuncelle()">
+            <option value="">Seçiniz</option>
+            <option value="var">Evet, mevcut</option>
+            <option value="yok">Hayır, mevcut değil</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input type="number" id="L0" class="input" placeholder="Uygulanan Yük (L0) kg" />
+          <input type="number" id="I0" class="input" placeholder="Gösterge Değeri (I0)" />
+          <div id="deltaContainer">
+            <input type="number" id="dL0" class="input" placeholder="İlave Yük (ΔL0)" />
+          </div>
+          <input type="number" id="eDegeri" class="input" placeholder="e Değeri (bölüntü)" />
+        </div>
+        <div class="text-center mt-4">
+          <button onclick="hesaplaSifirKontrol()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Hesapla</button>
+        </div>
+        <div id="sifirSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
+      </div>
 
-  <!-- Genişletilmiş Gösterge Tertibatı Seçimi -->
-  <div class="mb-4">
-  <label class="block text-sm font-semibold text-gray-700 mb-1">Genişletilmiş Gösterge Tertibatı mevcut mu?</label>
-  <select id="ggtSecimi" class="input" onchange="ggtDurumunuGuncelle()">
-    <option value="">Seçiniz</option>
-    <option value="var">Evet, mevcut</option>
-    <option value="yok">Hayır, mevcut değil</option>
-  </select>
-  </div> 
-       <script>
-  let ggtVarMi = null;
+      <!-- Köşe Yük Testi -->
+      <div class="mt-6 mb-4">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Köşe Yük Testi</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div><input type="number" id="eDegeriKose" class="input" placeholder="e Değeri (bölüntü)" /></div>
+          <div><input type="number" id="E0" class="input" placeholder="Sıfırdaki Hata E0" /></div>
+          <div><input type="number" id="mihKose" class="input" placeholder="MİH (± kg)" /></div>
+          ${[1, 2, 3, 4, 5, 6].map(i => `
+            <input type="number" id="L${i}" class="input" placeholder="${i}. Köşe Yük (L${i}) kg" />
+            <input type="number" id="I${i}" class="input" placeholder="${i}. Gösterge (I${i})" />
+            <input type="number" id="dL${i}" class="input" placeholder="${i}. İlave Yük (ΔL${i})" />
+          `).join("")}
+        </div>
+        <div class="text-center mt-4">
+          <button onclick="hesaplaKoseYuk()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Hesapla</button>
+        </div>
+        <div id="koseSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
+      </div>
+    </div>
+  </div>
 
-  function ggtDurumunuGuncelle() {
-    const secim = document.getElementById("ggtSecimi").value;
-    ggtVarMi = secim === "var";
+  <script>
+    let ggtVarMi = null;
 
-    // GGT'ye göre köşe testi ilave yük alanlarını göster/gizle
-    for (let i = 1; i <= 6; i++) {
-      const ilaveInput = document.getElementById(`dL${i}`);
-      if (ilaveInput) {
-        ilaveInput.parentElement.style.display = ggtVarMi ? "none" : "block";
+    function ggtDurumunuGuncelle() {
+      const secim = document.getElementById("ggtSecimi").value;
+      ggtVarMi = secim === "var";
+      const deltaContainer = document.getElementById("deltaContainer");
+      deltaContainer.style.display = ggtVarMi ? "none" : "block";
+      for (let i = 1; i <= 6; i++) {
+        const el = document.getElementById(`dL${i}`);
+        if (el) el.parentElement.style.display = ggtVarMi ? "none" : "block";
       }
     }
-  }
-</script>
 
-  <!-- Test Girdi Alanları -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <input type="number" id="L0" class="input" placeholder="Uygulanan Yük (L0) kg" />
-    <input type="number" id="I0" class="input" placeholder="Gösterge Değeri (I0)" />
-
-    <!-- ΔL0 sadece 'hayır' seçilirse görünür -->
-    <div id="deltaContainer">
-      <input type="number" id="dL0" class="input" placeholder="İlave Yük (ΔL0)" />
-    </div>
-
-    <input type="number" id="eDegeri" class="input" placeholder="e Değeri (bölüntü)" />
-  </div>
-
-  <!-- Hesaplama Butonu -->
-  <div class="text-center mt-4">
-    <button onclick="hesaplaSifirKontrol()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Hesapla</button>
-  </div>
-
-  <!-- Sonuç Alanı -->
-  <div id="sifirSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
-</div>
-
-<script>
-  function toggleDeltaInput() {
-    const select = document.getElementById("genisletilmisVarMi").value;
-    const deltaContainer = document.getElementById("deltaContainer");
-    if (select === "evet") {
-      deltaContainer.style.display = "none";
-    } else {
-      deltaContainer.style.display = "block";
-    }
-  }
-
-  function hesaplaSifirKontrol() {
-    const L0 = parseFloat(document.getElementById("L0").value);
-    const I0 = parseFloat(document.getElementById("I0").value);
-    const e = parseFloat(document.getElementById("eDegeri").value);
-    const secim = document.getElementById("genisletilmisVarMi").value;
-    const sonucDiv = document.getElementById("sifirSonuc");
-
-    if (isNaN(L0) || isNaN(I0) || isNaN(e) || !secim) {
-      sonucDiv.innerHTML = `<p class="text-red-600">Lütfen tüm alanları doldurunuz.</p>`;
-      return;
-    }
-
-    let E0, formül, deltaGerekli = secim === "hayir";
-    let MIH = 0.25 * e;
-
-    if (deltaGerekli) {
-      const dL0 = parseFloat(document.getElementById("dL0").value);
-      if (isNaN(dL0)) {
-        sonucDiv.innerHTML = `<p class="text-red-600">ΔL0 (ilave yük) değeri gerekli.</p>`;
+    function hesaplaSifirKontrol() {
+      const L0 = parseFloat(document.getElementById("L0").value);
+      const I0 = parseFloat(document.getElementById("I0").value);
+      const e = parseFloat(document.getElementById("eDegeri").value);
+      const secim = document.getElementById("ggtSecimi").value;
+      const sonucDiv = document.getElementById("sifirSonuc");
+      if (isNaN(L0) || isNaN(I0) || isNaN(e) || !secim) {
+        sonucDiv.innerHTML = `<p class="text-red-600">Lütfen tüm alanları doldurunuz.</p>`;
         return;
       }
-      E0 = I0 + 0.5 * e - dL0 - L0;
-      formül = "E0 = I0 + 0.5e - ΔL0 - L0";
-    } else {
-      E0 = I0 - L0;
-      formül = "E0 = I0 - L0";
-    }
-
-    const uygun = Math.abs(E0) <= MIH;
-
-    sonucDiv.innerHTML = `
-      <p class="text-gray-800 mb-2"><strong>${formül}</strong></p>
-      <p>Hesaplanan E0: <strong>${E0.toFixed(3)} kg</strong></p>
-      <p>MİH (±0.25e): <strong>${MIH.toFixed(3)} kg</strong></p>
-      <p class="${uygun ? 'text-green-600' : 'text-red-600'} font-bold mt-2">
-        ${uygun ? "UYGUN ✅" : "UYGUN DEĞİL ❌"}
-      </p>
-    `;
-  }
-</script>
-
-      <!-- Diğer sekmeler (Köşe Yük, Tekrarlanabilirlik, Tartım Performansı) aynı mantıkla eklenebilir -->
-      <div class="mt-6 mb-4">
-  <h3 class="text-xl font-bold text-gray-800 mb-4">Köşe Yük Testi</h3>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <!-- 6 köşe için -->
-    ${[1, 2, 3, 4, 5, 6].map(i => `
-      <div>
-        <input type="number" id="L${i}" class="input" placeholder="${i}. Köşe Yük (L${i}) kg" />
-      </div>
-      <div>
-        <input type="number" id="I${i}" class="input" placeholder="${i}. Gösterge (I${i})" />
-      </div>
-      <div>
-        <input type="number" id="dL${i}" class="input" placeholder="${i}. İlave Yük (ΔL${i})" />
-      </div>
-    `).join("")}
-    <input type="number" id="eDegeriKose" class="input" placeholder="e Değeri (bölüntü)" />
-    <input type="number" id="E0" class="input" placeholder="Sıfırdaki Hata E0" />
-    <input type="number" id="mihKose" class="input" placeholder="MİH (± kg)" />
-  </div>
-
-  <div class="text-center mt-4">
-    <button onclick="hesaplaKoseYuk()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Hesapla</button>
-  </div>
-  <div id="koseSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
-</div>
-      <script>
-  function hesaplaKoseYuk() {
-    const e = parseFloat(document.getElementById("eDegeriKose").value);
-    const E0 = parseFloat(document.getElementById("E0").value);
-    const mih = parseFloat(document.getElementById("mihKose").value);
-    let sonucHTML = "";
-
-    for (let i = 1; i <= 6; i++) {
-      const L = parseFloat(document.getElementById(`L${i}`).value);
-      const I = parseFloat(document.getElementById(`I${i}`).value);
-      const dL = parseFloat(document.getElementById(`dL${i}`).value);
-
-      if (isNaN(L) || isNaN(I) || (!ggtVarMi && isNaN(dL))) {
-        sonucHTML += `<p class="text-red-500">${i}. köşe için eksik veri!</p>`;
-        continue;
+      let E0, formül, deltaGerekli = secim === "yok";
+      let MIH = 0.25 * e;
+      if (deltaGerekli) {
+        const dL0 = parseFloat(document.getElementById("dL0").value);
+        if (isNaN(dL0)) {
+          sonucDiv.innerHTML = `<p class="text-red-600">ΔL0 (ilave yük) değeri gerekli.</p>`;
+          return;
+        }
+        E0 = I0 + 0.5 * e - dL0 - L0;
+        formül = "E0 = I0 + 0.5e - ΔL0 - L0";
+      } else {
+        E0 = I0 - L0;
+        formül = "E0 = I0 - L0";
       }
-
-      let E = ggtVarMi ? I - L : I + 0.5 * e - dL - L;
-      let Ec = E - E0;
-
-      const uygunMu = Math.abs(Ec) <= Math.abs(mih);
-      sonucHTML += `
-        <div class="mb-2">
-          <p><strong>${i}. Köşe:</strong> E=${E.toFixed(2)}, Ec=${Ec.toFixed(2)} → 
-          ${uygunMu ? "<span class='text-green-600 font-semibold'>Uygun</span>" : "<span class='text-red-600 font-semibold'>Uygun Değil</span>"}</p>
-        </div>
+      const uygun = Math.abs(E0) <= MIH;
+      sonucDiv.innerHTML = `
+        <p class="text-gray-800 mb-2"><strong>${formül}</strong></p>
+        <p>Hesaplanan E0: <strong>${E0.toFixed(3)} kg</strong></p>
+        <p>MİH (±0.25e): <strong>${MIH.toFixed(3)} kg</strong></p>
+        <p class="${uygun ? 'text-green-600' : 'text-red-600'} font-bold mt-2">
+          ${uygun ? "UYGUN ✅" : "UYGUN DEĞİL ❌"}
+        </p>
       `;
     }
 
-    document.getElementById("koseSonuc").innerHTML = sonucHTML;
-  }
-</script>
+    function hesaplaKoseYuk() {
+      const e = parseFloat(document.getElementById("eDegeriKose").value);
+      const E0 = parseFloat(document.getElementById("E0").value);
+      const mih = parseFloat(document.getElementById("mihKose").value);
+      let sonucHTML = "";
+      for (let i = 1; i <= 6; i++) {
+        const L = parseFloat(document.getElementById(`L${i}`).value);
+        const I = parseFloat(document.getElementById(`I${i}`).value);
+        const dL = parseFloat(document.getElementById(`dL${i}`).value);
+        if (isNaN(L) || isNaN(I) || (!ggtVarMi && isNaN(dL))) {
+          sonucHTML += `<p class='text-red-500'>${i}. köşe için eksik veri!</p>`;
+          continue;
+        }
+        let E = ggtVarMi ? I - L : I + 0.5 * e - dL - L;
+        let Ec = E - E0;
+        const uygunMu = Math.abs(Ec) <= Math.abs(mih);
+        sonucHTML += `
+          <div class="mb-2">
+            <p><strong>${i}. Köşe:</strong> E=${E.toFixed(2)}, Ec=${Ec.toFixed(2)} → 
+            ${uygunMu ? "<span class='text-green-600 font-semibold'>Uygun</span>" : "<span class='text-red-600 font-semibold'>Uygun Değil</span>"}</p>
+          </div>
+        `;
+      }
+      document.getElementById("koseSonuc").innerHTML = sonucHTML;
+    }
+  </script>
+</body>
 
     <div class="mb-6">
       <label class="text-sm text-gray-700">Muayene Fotoğrafları</label>
