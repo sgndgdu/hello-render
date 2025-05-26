@@ -68,13 +68,29 @@
 
   <!-- Genişletilmiş Gösterge Tertibatı Seçimi -->
   <div class="mb-4">
-    <label class="text-sm text-gray-700 font-medium">Genişletilmiş Gösterge Tertibatı Var mı?</label>
-    <select id="genisletilmisVarMi" class="input mt-1" onchange="toggleDeltaInput()">
-      <option value="">Seçiniz</option>
-      <option value="evet">Evet</option>
-      <option value="hayir">Hayır</option>
-    </select>
-  </div>
+  <label class="block text-sm font-semibold text-gray-700 mb-1">Genişletilmiş Gösterge Tertibatı mevcut mu?</label>
+  <select id="ggtSecimi" class="input" onchange="ggtDurumunuGuncelle()">
+    <option value="">Seçiniz</option>
+    <option value="var">Evet, mevcut</option>
+    <option value="yok">Hayır, mevcut değil</option>
+  </select>
+  </div> 
+       <script>
+  let ggtVarMi = null;
+
+  function ggtDurumunuGuncelle() {
+    const secim = document.getElementById("ggtSecimi").value;
+    ggtVarMi = secim === "var";
+
+    // GGT'ye göre köşe testi ilave yük alanlarını göster/gizle
+    for (let i = 1; i <= 6; i++) {
+      const ilaveInput = document.getElementById(`dL${i}`);
+      if (ilaveInput) {
+        ilaveInput.parentElement.style.display = ggtVarMi ? "none" : "block";
+      }
+    }
+  }
+</script>
 
   <!-- Test Girdi Alanları -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -151,61 +167,63 @@
 </script>
 
       <!-- Diğer sekmeler (Köşe Yük, Tekrarlanabilirlik, Tartım Performansı) aynı mantıkla eklenebilir -->
-      <div class="space-y-4">
-      <h3 class="text-lg font-semibold text-gray-800">Köşe Yük Testi</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input type="number" id="kose1" class="input" placeholder="1. Köşe Gösterge Değeri" />
-          <input type="number" id="kose2" class="input" placeholder="2. Köşe Gösterge Değeri" />
-          <input type="number" id="kose3" class="input" placeholder="3. Köşe Gösterge Değeri" />
-          <input type="number" id="kose4" class="input" placeholder="4. Köşe Gösterge Değeri" />
-          <input type="number" id="referansKose" class="input" placeholder="Referans Köşe Değeri" />
-          <input type="number" id="eDegeriKose" class="input" placeholder="e Değeri (bölüntü)" />
-        </div>
-        <div class="text-center">
-          <button onclick="hesaplaKoseYuk()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
-          Hesapla
-          </button>
-          </div>
-          <div id="koseSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
-          </div>
-          <div id="tab-tekrarlanabilirlik" class="tab-content mt-4">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Tekrarlanabilirlik Testi</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <input type="number" id="tekrar1" placeholder="1. Tartım Sonucu (kg)" class="input" />
-            <input type="number" id="tekrar2" placeholder="2. Tartım Sonucu (kg)" class="input" />
-            <input type="number" id="tekrar3" placeholder="3. Tartım Sonucu (kg)" class="input" />
-            <input type="number" id="eDegeriTekrar" placeholder="e Değeri (bölüntü)" class="input" />
-          </div>
-          <div class="text-center">
-            <button onclick="hesaplaTekrarlanabilirlik()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
-             Hesapla
-            </button>
-          </div>
+      <div class="mt-6 mb-4">
+  <h3 class="text-xl font-bold text-gray-800 mb-4">Köşe Yük Testi</h3>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- 6 köşe için -->
+    ${[1, 2, 3, 4, 5, 6].map(i => `
+      <div>
+        <input type="number" id="L${i}" class="input" placeholder="${i}. Köşe Yük (L${i}) kg" />
+      </div>
+      <div>
+        <input type="number" id="I${i}" class="input" placeholder="${i}. Gösterge (I${i})" />
+      </div>
+      <div>
+        <input type="number" id="dL${i}" class="input" placeholder="${i}. İlave Yük (ΔL${i})" />
+      </div>
+    `).join("")}
+    <input type="number" id="eDegeriKose" class="input" placeholder="e Değeri (bölüntü)" />
+    <input type="number" id="E0" class="input" placeholder="Sıfırdaki Hata E0" />
+    <input type="number" id="mihKose" class="input" placeholder="MİH (± kg)" />
+  </div>
 
-          <div id="tekrarSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
-          </div>
-          <div id="tab-performans" class="tab-content mt-4">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Tartım Performansı Testi</h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <input type="number" id="mihPerformans" placeholder="MİH (± kg)" class="input" />
-                <input type="number" id="L1" placeholder="1. Yük (kg)" class="input" />
-                <input type="number" id="I1" placeholder="1. Gösterge Değeri" class="input" />
-                <input type="number" id="dL1" placeholder="1. İlave Yük (ΔL)" class="input" />
-                <input type="number" id="L2" placeholder="2. Yük (kg)" class="input" />
-                <input type="number" id="I2" placeholder="2. Gösterge Değeri" class="input" />
-                <input type="number" id="dL2" placeholder="2. İlave Yük (ΔL)" class="input" />
-                <input type="number" id="L3" placeholder="3. Yük (kg)" class="input" />
-                <input type="number" id="I3" placeholder="3. Gösterge Değeri" class="input" />
-                <input type="number" id="dL3" placeholder="3. İlave Yük (ΔL)" class="input" />
-              </div>
-              <div class="text-center">
-                <button onclick="hesaplaPerformans()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
-                  Hesapla
-                </button>
-              </div>
-              <div id="performansSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
-          </div>
-    </div>
+  <div class="text-center mt-4">
+    <button onclick="hesaplaKoseYuk()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Hesapla</button>
+  </div>
+  <div id="koseSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
+</div>
+      <script>
+  function hesaplaKoseYuk() {
+    const e = parseFloat(document.getElementById("eDegeriKose").value);
+    const E0 = parseFloat(document.getElementById("E0").value);
+    const mih = parseFloat(document.getElementById("mihKose").value);
+    let sonucHTML = "";
+
+    for (let i = 1; i <= 6; i++) {
+      const L = parseFloat(document.getElementById(`L${i}`).value);
+      const I = parseFloat(document.getElementById(`I${i}`).value);
+      const dL = parseFloat(document.getElementById(`dL${i}`).value);
+
+      if (isNaN(L) || isNaN(I) || (!ggtVarMi && isNaN(dL))) {
+        sonucHTML += `<p class="text-red-500">${i}. köşe için eksik veri!</p>`;
+        continue;
+      }
+
+      let E = ggtVarMi ? I - L : I + 0.5 * e - dL - L;
+      let Ec = E - E0;
+
+      const uygunMu = Math.abs(Ec) <= Math.abs(mih);
+      sonucHTML += `
+        <div class="mb-2">
+          <p><strong>${i}. Köşe:</strong> E=${E.toFixed(2)}, Ec=${Ec.toFixed(2)} → 
+          ${uygunMu ? "<span class='text-green-600 font-semibold'>Uygun</span>" : "<span class='text-red-600 font-semibold'>Uygun Değil</span>"}</p>
+        </div>
+      `;
+    }
+
+    document.getElementById("koseSonuc").innerHTML = sonucHTML;
+  }
+</script>
 
     <div class="mb-6">
       <label class="text-sm text-gray-700">Muayene Fotoğrafları</label>
