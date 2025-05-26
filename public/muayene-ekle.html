@@ -55,6 +55,15 @@
     <div id="scaleDetails" class="mb-6"></div>
 
       <!-- Sıfır Kontrol Testi -->
+    <div class="mb-4">
+      <label class="block text-sm font-semibold text-gray-700 mb-1">Genişletilmiş Gösterge Tertibatı mevcut mu?</label>
+      <select id="ggtSecimi" class="input" onchange="ggtDurumunuGuncelle()">
+        <option value="">Seçiniz</option>
+        <option value="var">Evet, mevcut</option>
+        <option value="yok">Hayır, mevcut değil</option>
+      </select>
+    </div>
+
       <div id="tab-sifir" class="tab-content mt-4">
         <h3 class="text-lg font-semibold text-gray-800 mb-4">Sıfır Kontrol Testi</h3>
         <div class="mb-4">
@@ -81,27 +90,22 @@
 
       <!-- Köşe Yük Testi -->
       <div class="mt-6 mb-4">
-        <h3 class="text-xl font-bold text-gray-800 mb-4">Köşe Yük Testi</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div id="koseInputsContainer"></div>
-          <script>
-            const container = document.getElementById("koseInputsContainer");
-            for (let i = 1; i <= 6; i++) {
-              container.innerHTML += `
-      <input type="number" id="L${i}" class="input" placeholder="${i}. Köşe Yük (L${i}) kg" />
-      <input type="number" id="I${i}" class="input" placeholder="${i}. Gösterge (I${i})" />
-      <input type="number" id="dL${i}" class="input" placeholder="${i}. İlave Yük (ΔL${i})" />
-    `;
-  }
-</script>
-        </div>
-        <div class="text-center mt-4">
-          <button onclick="hesaplaKoseYuk()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Hesapla</button>
-        </div>
-        <div id="koseSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
+      <h3 class="text-xl font-bold text-gray-800 mb-4">Köşe Yük Testi</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><input type="number" id="eDegeriKose" class="input" placeholder="e Değeri (bölüntü)" /></div>
+        <div><input type="number" id="E0" class="input" placeholder="Sıfırdaki Hata E0" /></div>
+        <div><input type="number" id="mihKose" class="input" placeholder="MİH (± kg)" /></div>
+        ${[1,2,3,4,5,6].map(i => `
+        <div><input type="number" id="L${i}" class="input" placeholder="${i}. Köşe Yük (L${i}) kg" /></div>
+        <div><input type="number" id="I${i}" class="input" placeholder="${i}. Gösterge (I${i})" /></div>
+        <div id="dL${i}-container"><input type="number" id="dL${i}" class="input" placeholder="${i}. İlave Yük (ΔL${i})" /></div>
+        `).join('')}
       </div>
+      <div class="text-center mt-4">
+        <button onclick="hesaplaKoseYuk()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">Hesapla</button>
+      </div>
+      <div id="koseSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
     </div>
-  </div>
 
   <script>
     let ggtVarMi = null;
@@ -153,23 +157,27 @@
     }
 
     function hesaplaKoseYuk() {
-      function ggtDurumunuGuncelle() {
-  const secim = document.getElementById("ggtSecimi").value;
-  const ggtVarMi = secim === "var";
+      const e = parseFloat(document.getElementById("eDegeriKose").value);
+      const E0 = parseFloat(document.getElementById("E0").value);
+      const mih = parseFloat(document.getElementById("mihKose").value);
+      let sonucHTML = "";
+      const ggtSecim = document.getElementById("ggtSecimi").value;
+      const ggtVarMi = ggtSecim === "var";
 
-  for (let i = 1; i <= 6; i++) {
-    const ilaveInput = document.getElementById(`dL${i}`);
-    if (ilaveInput) {
-      ilaveInput.style.display = ggtVarMi ? "none" : "block";
-    }
-  }
+      for (let i = 1; i <= 6; i++) {
+        const L = parseFloat(document.getElementById(`L${i}`).value);
+        const I = parseFloat(document.getElementById(`I${i}`).value);
+        const dL = parseFloat(document.getElementById(`dL${i}`).value);
+        if (isNaN(L) || isNaN(I) || (!ggtVarMi && isNaN(dL))) {
+          sonucHTML += `<p class="text-red-500">${i}. köşe için eksik veri!</p>`;
+          continue;
+        }
 
   // Ayrıca sıfır testi için dL0 alanını da kontrol et
-  const dL0Container = document.getElementById("deltaContainer");
-  if (dL0Container) {
-    dL0Container.style.display = ggtVarMi ? "none" : "block";
-  }
-}
+      const dL0Container = document.getElementById("deltaContainer");
+      if (dL0Container) {
+        dL0Container.style.display = ggtVarMi ? "none" : "block";
+          }
       const e = parseFloat(document.getElementById("eDegeriKose").value);
       const E0 = parseFloat(document.getElementById("E0").value);
       const mih = parseFloat(document.getElementById("mihKose").value);
