@@ -153,6 +153,23 @@
     }
 
     function hesaplaKoseYuk() {
+      function ggtDurumunuGuncelle() {
+  const secim = document.getElementById("ggtSecimi").value;
+  const ggtVarMi = secim === "var";
+
+  for (let i = 1; i <= 6; i++) {
+    const ilaveInput = document.getElementById(`dL${i}`);
+    if (ilaveInput) {
+      ilaveInput.style.display = ggtVarMi ? "none" : "block";
+    }
+  }
+
+  // Ayrıca sıfır testi için dL0 alanını da kontrol et
+  const dL0Container = document.getElementById("deltaContainer");
+  if (dL0Container) {
+    dL0Container.style.display = ggtVarMi ? "none" : "block";
+  }
+}
       const e = parseFloat(document.getElementById("eDegeriKose").value);
       const E0 = parseFloat(document.getElementById("E0").value);
       const mih = parseFloat(document.getElementById("mihKose").value);
