@@ -98,6 +98,8 @@
 </div>
 
 <script>
+  let sonE = null;
+  let sonE0 = null;
   function toggleDeltaInput() {
     const select = document.getElementById("genisletilmisVarMi").value;
     const deltaContainer = document.getElementById("deltaContainer");
@@ -149,6 +151,12 @@
         ${uygun ? "UYGUN ✅" : "UYGUN DEĞİL ❌"}
       </p>
     `;
+
+      document.getElementById("eDegeriKose").value = e.toFixed(3);
+    document.getElementById("E0").value = E0.toFixed(3);
+
+    sonE = e;
+    sonE0 = E0;
 
     // ✅ Diğer test alanlarına aktar
     document.getElementById("eDegeriKose").value = e.toFixed(3);
@@ -241,8 +249,6 @@
 </div>
   <script>
 function hesaplaKoseYuk() {
-  const e = parseFloat(document.getElementById("eDegeriKose").value);
-  const E0 = parseFloat(document.getElementById("E0").value);
   const mih = parseFloat(document.getElementById("mihKose").value);
   let sonucHTML = "";
 
