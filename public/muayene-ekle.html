@@ -214,37 +214,33 @@
   <div id="koseSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
 </div>
   <script>
-function hesaplaKoseYuk() {
+  function hesaplaKoseYuk() {
   let sonucHTML = "";
 
-  // Globalden alınan değerleri kontrol et
   const e = typeof sonE !== "undefined" && sonE !== null ? sonE : NaN;
   const E0 = typeof sonE0 !== "undefined" && sonE0 !== null ? sonE0 : NaN;
   const mih = typeof sonMIH !== "undefined" && sonMIH !== null ? sonMIH : NaN;
-  const I = parseFloat(document.getElementById("I_kose").value); // 🔥 Sadece bir kez girilen I değeri
+  const I_kose = parseFloat(document.getElementById("I_kose").value);
 
-  if (isNaN(e) || isNaN(E0) || isNaN(mih) || isNaN(I)) {
+  if (isNaN(e) || isNaN(E0) || isNaN(mih) || isNaN(I_kose)) {
     document.getElementById("koseSonuc").innerHTML = `<p class="text-red-600">Lütfen önce sıfır kontrol testini ve ortak I değerini girin.</p>`;
     return;
   }
 
-  // Değerleri inputlara yaz (görünüyorsa)
-  const eInput = document.getElementById("eDegeriKose");
-  const e0Input = document.getElementById("E0");
-  const mihInput = document.getElementById("mihKose");
-  if (eInput) eInput.value = e.toFixed(3);
-  if (e0Input) e0Input.value = E0.toFixed(3);
-  if (mihInput) mihInput.value = mih.toFixed(3);
+  document.getElementById("eDegeriKose").value = e.toFixed(3);
+  document.getElementById("E0").value = E0.toFixed(3);
+  document.getElementById("mihKose").value = mih.toFixed(3);
 
   for (let i = 1; i <= 6; i++) {
+    const I = parseFloat(document.getElementById(`I${i}`).value);
     const dL = parseFloat(document.getElementById(`dL${i}`).value);
 
-    if (isNaN(L) || (!ggtVarMi && isNaN(dL))) {
+    if (isNaN(I) || (!ggtVarMi && isNaN(dL))) {
       sonucHTML += `<p class="text-red-500">${i}. köşe için eksik veri!</p>`;
       continue;
     }
 
-    const E = ggtVarMi ? I - L : I + 0.5 * e - dL - L;
+    const E = ggtVarMi ? I_kose - I : I_kose + 0.5 * e - dL - I;
     const Ec = E - E0;
     const uygunMu = Math.abs(Ec) <= Math.abs(mih);
 
