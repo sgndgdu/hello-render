@@ -59,6 +59,10 @@
     <div class="mb-4">
       <label class="block text-sm font-semibold text-gray-700 mb-1">Genişletilmiş Gösterge Tertibatı mevcut mu?</label>
       <select id="ggtSecimi" class="input" onchange="ggtDurumunuGuncelle()">
+        <option value="">Seçiniz</option>
+        <option value="var">Evet, mevcut</option>
+        <option value="yok">Hayır, mevcut değil</option>
+        </select>
         <div class="mb-4">
         <label class="block text-sm font-semibold text-gray-700 mb-1">Doğruluk Sınıfı</label>
         <select id="dogrulukSinifi" class="input">
@@ -69,10 +73,6 @@
         <option value="IV">Sınıf IV</option>
         </select>
       </div>
-        <option value="">Seçiniz</option>
-        <option value="var">Evet, mevcut</option>
-        <option value="yok">Hayır, mevcut değil</option>
-      </select>
     </div>
 
     <div id="testContainer"></div>
