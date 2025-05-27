@@ -159,32 +159,34 @@
   <h3 class="text-xl font-bold text-gray-800 mb-4">Köşe Yük Testi</h3>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- 🔥 Ortak I değeri girişi -->
+    <div><input type="number" id="I_kose" class="input" placeholder="Köşe Yük Ortak Gösterge Değeri (I)" /></div>
     <input type="number" id="eDegeriKose" class="input bg-gray-100" placeholder="e Değeri" readonly />
     <input type="number" id="E0" class="input bg-gray-100" placeholder="Sıfırdaki Hata E0" readonly />
     <input type="number" id="mihKose" class="input bg-gray-100" placeholder="MİH (± kg)" readonly />
 
     <!-- 6 Köşe İçin Giriş Alanları -->
-    <div><input type="number" id="L1" class="input" placeholder="1. Köşe Yük (L1) kg" /></div>
+    
     <div><input type="number" id="I1" class="input" placeholder="1. Gösterge (I1)" /></div>
     <div><input type="number" id="dL1" class="input" placeholder="1. İlave Yük (ΔL1)" /></div>
 
-    <div><input type="number" id="L2" class="input" placeholder="2. Köşe Yük (L2) kg" /></div>
+    
     <div><input type="number" id="I2" class="input" placeholder="2. Gösterge (I2)" /></div>
     <div><input type="number" id="dL2" class="input" placeholder="2. İlave Yük (ΔL2)" /></div>
 
-    <div><input type="number" id="L3" class="input" placeholder="3. Köşe Yük (L3) kg" /></div>
+   
     <div><input type="number" id="I3" class="input" placeholder="3. Gösterge (I3)" /></div>
     <div><input type="number" id="dL3" class="input" placeholder="3. İlave Yük (ΔL3)" /></div>
 
-    <div><input type="number" id="L4" class="input" placeholder="4. Köşe Yük (L4) kg" /></div>
+    
     <div><input type="number" id="I4" class="input" placeholder="4. Gösterge (I4)" /></div>
     <div><input type="number" id="dL4" class="input" placeholder="4. İlave Yük (ΔL4)" /></div>
 
-    <div><input type="number" id="L5" class="input" placeholder="5. Köşe Yük (L5) kg" /></div>
+   
     <div><input type="number" id="I5" class="input" placeholder="5. Gösterge (I5)" /></div>
     <div><input type="number" id="dL5" class="input" placeholder="5. İlave Yük (ΔL5)" /></div>
 
-    <div><input type="number" id="L6" class="input" placeholder="6. Köşe Yük (L6) kg" /></div>
+    
     <div><input type="number" id="I6" class="input" placeholder="6. Gösterge (I6)" /></div>
     <div><input type="number" id="dL6" class="input" placeholder="6. İlave Yük (ΔL6)" /></div>
   </div>
@@ -203,14 +205,14 @@ function hesaplaKoseYuk() {
   const e = typeof sonE !== "undefined" && sonE !== null ? sonE : NaN;
   const E0 = typeof sonE0 !== "undefined" && sonE0 !== null ? sonE0 : NaN;
   const mih = typeof sonMIH !== "undefined" && sonMIH !== null ? sonMIH : NaN;
+  const I = parseFloat(document.getElementById("I_kose").value); // 🔥 Sadece bir kez girilen I değeri
 
-  // Değerler eksikse uyarı ver
-  if (isNaN(e) || isNaN(E0) || isNaN(mih)) {
-    document.getElementById("koseSonuc").innerHTML = `<p class="text-red-600">Lütfen önce sıfır kontrol testini yapın.</p>`;
+  if (isNaN(e) || isNaN(E0) || isNaN(mih) || isNaN(I)) {
+    document.getElementById("koseSonuc").innerHTML = `<p class="text-red-600">Lütfen önce sıfır kontrol testini ve ortak I değerini girin.</p>`;
     return;
   }
 
-  // Değerleri gösterim için inputlara yaz (readonly ise yine görürsün)
+  // Değerleri inputlara yaz (görünüyorsa)
   const eInput = document.getElementById("eDegeriKose");
   const e0Input = document.getElementById("E0");
   const mihInput = document.getElementById("mihKose");
@@ -220,10 +222,9 @@ function hesaplaKoseYuk() {
 
   for (let i = 1; i <= 6; i++) {
     const L = parseFloat(document.getElementById(`L${i}`).value);
-    const I = parseFloat(document.getElementById(`I${i}`).value);
     const dL = parseFloat(document.getElementById(`dL${i}`).value);
 
-    if (isNaN(L) || isNaN(I) || (!ggtVarMi && isNaN(dL))) {
+    if (isNaN(L) || (!ggtVarMi && isNaN(dL))) {
       sonucHTML += `<p class="text-red-500">${i}. köşe için eksik veri!</p>`;
       continue;
     }
