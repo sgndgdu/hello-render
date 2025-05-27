@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
+  <style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    min-height: 100dvh;
+  }
+</style>
   <meta charset="UTF-8">
   <title>Giriş Yap</title>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -11,8 +17,9 @@
     }
   </style>
 </head>
-<body class="bg-gray-300 flex items-center justify-center h-screen px-4">
-
+<body class="bg-gray-300 flex flex-col min-h-screen">
+  
+  <div class="flex-grow flex items-center justify-center px-4">
   <div class="bg-white p-8 rounded-xl shadow-md w-full max-w-sm">
 
     <h2 class="text-2xl font-semibold text-[#242040] text-center mb-6">KULLANICI GİRİŞİ</h2>
@@ -53,7 +60,7 @@
     <button onclick="goToRegister()" class="w-full border-2 border-[#be3c3c] text-[#be3c3c] py-3 rounded font-medium hover:bg-red-50 transition">Kayıt Ol</button>
 
   </div>
-
+</div>
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
