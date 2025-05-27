@@ -139,7 +139,7 @@
 
     let E0, formül, deltaGerekli = secim === "yok";
     const dogrulukSinifi = document.getElementById("dogrulukSinifi").value;
-    let MIH = hesaplaMIH(e, dogrulukSinifi, L0);
+    let MIH = hesaplaMIH_Tab18(e, dogrulukSinifi, L0);
 
     if (deltaGerekli) {
       const dL0 = parseFloat(document.getElementById("dL0").value);
@@ -258,29 +258,34 @@
       
   <script>
 
-    function hesaplaMIH(e, dogrulukSinifi, yukKg) {
-  const yuk = yukKg / e;
+    function hesaplaMIH_Tab18(e, dogrulukSinifi, yukKg) {
+  const m = yukKg / e;
+
   if (dogrulukSinifi === "I") {
-    if (yuk <= 50000) return 0.5 * e;
-    if (yuk <= 200000) return 1.0 * e;
-    return 1.5 * e;
+    if (m <= 50000) return 1.0 * e;
+    if (m <= 200000) return 2.0 * e;
+    return 3.0 * e;
   }
+
   if (dogrulukSinifi === "II") {
-    if (yuk <= 5000) return 1.0 * e;
-    if (yuk <= 20000) return 2.0 * e;
+    if (m <= 5000) return 1.0 * e;
+    if (m <= 20000) return 2.0 * e;
     return 3.0 * e;
   }
+
   if (dogrulukSinifi === "III") {
-    if (yuk <= 500) return 1.0 * e;
-    if (yuk <= 2000) return 2.0 * e;
+    if (m <= 500) return 1.0 * e;
+    if (m <= 2000) return 2.0 * e;
     return 3.0 * e;
   }
+
   if (dogrulukSinifi === "IV") {
-    if (yuk <= 50) return 1.0 * e;
-    if (yuk <= 200) return 2.0 * e;
+    if (m <= 50) return 1.0 * e;
+    if (m <= 200) return 2.0 * e;
     return 3.0 * e;
   }
-  return 0.25 * e; // fallback
+
+  return 0; // hata
 }
     
     const db = firebase.firestore();
