@@ -131,7 +131,7 @@
         sonucDiv.innerHTML = `<p class="text-red-600">ΔL0 (ilave yük) değeri gerekli.</p>`;
         return;
       }
-      E0 = I0 + 0.5 * e - dL0 - L0;
+      E0 = (I0) + (0.5 * e) - (dL0 + L0);
       formül = "E0 = I0 + 0.5e - ΔL0 - L0";
     } else {
       E0 = I0 - L0;
