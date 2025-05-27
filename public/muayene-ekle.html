@@ -139,6 +139,9 @@
     }
 
     const uygun = Math.abs(E0) <= MIH;
+    
+    sonE = e;
+    sonE0 = E0;
 
     sonucDiv.innerHTML = `
       <p class="text-gray-800 mb-2"><strong>${formül}</strong></p>
@@ -196,6 +199,20 @@ function hesaplaKoseYuk() {
   const mih = parseFloat(document.getElementById("mihKose").value);
   let sonucHTML = "";
 
+  // e ve E0 önce global değişkenden alınır, yoksa inputtan okunur
+  const e = sonE !== null ? sonE : parseFloat(document.getElementById("eDegeriKose").value);
+  const E0 = sonE0 !== null ? sonE0 : parseFloat(document.getElementById("E0").value);
+
+  // Değerler eksikse uyarı ver
+  if (isNaN(e) || isNaN(E0)) {
+    document.getElementById("koseSonuc").innerHTML = `<p class="text-red-600">Lütfen önce sıfır kontrol testini yapın ya da e ve E0 değerlerini girin.</p>`;
+    return;
+  }
+
+  // inputlara yaz
+  document.getElementById("eDegeriKose").value = e.toFixed(3);
+  document.getElementById("E0").value = E0.toFixed(3);
+
   for (let i = 1; i <= 6; i++) {
     const L = parseFloat(document.getElementById(`L${i}`).value);
     const I = parseFloat(document.getElementById(`I${i}`).value);
@@ -205,16 +222,14 @@ function hesaplaKoseYuk() {
       sonucHTML += `<p class="text-red-500">${i}. köşe için eksik veri!</p>`;
       continue;
     }
-    const e = sonE;
-    const E0 = sonE0;
+
     let E = ggtVarMi ? I - L : I + 0.5 * e - dL - L;
     let Ec = E - E0;
     const uygunMu = Math.abs(Ec) <= Math.abs(mih);
-    document.getElementById("eDegeriKose").value = e.toFixed(3);
-    document.getElementById("E0").value = E0.toFixed(3);
+
     sonucHTML += `
       <div class="mb-2">
-        <p><strong>${i}. Köşe:</strong> E=${E.toFixed(2)}, Ec=${Ec.toFixed(2)} → 
+        <p><strong>${i}. Köşe:</strong> E=${E.toFixed(2)}, Ec=${Ec.toFixed(2)} →
         ${uygunMu ? "<span class='text-green-600 font-semibold'>Uygun</span>" : "<span class='text-red-600 font-semibold'>Uygun Değil</span>"}</p>
       </div>
     `;
