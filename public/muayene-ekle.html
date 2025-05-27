@@ -142,6 +142,7 @@
     
     sonE = e;
     sonE0 = E0;
+    sonMIH = MIH;
 
     sonucDiv.innerHTML = `
       <p class="text-gray-800 mb-2"><strong>${formül}</strong></p>
@@ -158,9 +159,9 @@
   <h3 class="text-xl font-bold text-gray-800 mb-4">Köşe Yük Testi</h3>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div><input type="number" id="eDegeriKose" class="input" placeholder="e Değeri (bölüntü)" /></div>
-    <div><input type="number" id="E0" class="input" placeholder="Sıfırdaki Hata E0" /></div>
-    <div><input type="number" id="mihKose" class="input" placeholder="MİH (± kg)" /></div>
+    <input type="number" id="eDegeriKose" class="input bg-gray-100" placeholder="e Değeri" readonly />
+    <input type="number" id="E0" class="input bg-gray-100" placeholder="Sıfırdaki Hata E0" readonly />
+    <input type="number" id="mihKose" class="input bg-gray-100" placeholder="MİH (± kg)" readonly />
 
     <!-- 6 Köşe İçin Giriş Alanları -->
     <div><input type="number" id="L1" class="input" placeholder="1. Köşe Yük (L1) kg" /></div>
@@ -195,23 +196,28 @@
   <div id="koseSonuc" class="text-center text-lg font-semibold text-gray-800 mt-4"></div>
 </div>
   <script>
+<script>
 function hesaplaKoseYuk() {
-  const mih = parseFloat(document.getElementById("mihKose").value);
   let sonucHTML = "";
 
-  // e ve E0 önce global değişkenden alınır, yoksa inputtan okunur
-  const e = sonE !== null ? sonE : parseFloat(document.getElementById("eDegeriKose").value);
-  const E0 = sonE0 !== null ? sonE0 : parseFloat(document.getElementById("E0").value);
+  // Globalden alınan değerleri kontrol et
+  const e = typeof sonE !== "undefined" && sonE !== null ? sonE : NaN;
+  const E0 = typeof sonE0 !== "undefined" && sonE0 !== null ? sonE0 : NaN;
+  const mih = typeof sonMIH !== "undefined" && sonMIH !== null ? sonMIH : NaN;
 
   // Değerler eksikse uyarı ver
-  if (isNaN(e) || isNaN(E0)) {
-    document.getElementById("koseSonuc").innerHTML = `<p class="text-red-600">Lütfen önce sıfır kontrol testini yapın ya da e ve E0 değerlerini girin.</p>`;
+  if (isNaN(e) || isNaN(E0) || isNaN(mih)) {
+    document.getElementById("koseSonuc").innerHTML = `<p class="text-red-600">Lütfen önce sıfır kontrol testini yapın.</p>`;
     return;
   }
 
-  // inputlara yaz
-  document.getElementById("eDegeriKose").value = e.toFixed(3);
-  document.getElementById("E0").value = E0.toFixed(3);
+  // Değerleri gösterim için inputlara yaz (readonly ise yine görürsün)
+  const eInput = document.getElementById("eDegeriKose");
+  const e0Input = document.getElementById("E0");
+  const mihInput = document.getElementById("mihKose");
+  if (eInput) eInput.value = e.toFixed(3);
+  if (e0Input) e0Input.value = E0.toFixed(3);
+  if (mihInput) mihInput.value = mih.toFixed(3);
 
   for (let i = 1; i <= 6; i++) {
     const L = parseFloat(document.getElementById(`L${i}`).value);
@@ -223,8 +229,8 @@ function hesaplaKoseYuk() {
       continue;
     }
 
-    let E = ggtVarMi ? I - L : I + 0.5 * e - dL - L;
-    let Ec = E - E0;
+    const E = ggtVarMi ? I - L : I + 0.5 * e - dL - L;
+    const Ec = E - E0;
     const uygunMu = Math.abs(Ec) <= Math.abs(mih);
 
     sonucHTML += `
