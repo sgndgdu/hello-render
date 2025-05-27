@@ -59,6 +59,16 @@
     <div class="mb-4">
       <label class="block text-sm font-semibold text-gray-700 mb-1">Genişletilmiş Gösterge Tertibatı mevcut mu?</label>
       <select id="ggtSecimi" class="input" onchange="ggtDurumunuGuncelle()">
+        <div class="mb-4">
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Doğruluk Sınıfı</label>
+        <select id="dogrulukSinifi" class="input">
+        <option value="">Seçiniz</option>
+        <option value="I">Sınıf I</option>
+        <option value="II">Sınıf II</option>
+        <option value="III">Sınıf III</option>
+        <option value="IV">Sınıf IV</option>
+        </select>
+      </div>
         <option value="">Seçiniz</option>
         <option value="var">Evet, mevcut</option>
         <option value="yok">Hayır, mevcut değil</option>
@@ -123,7 +133,8 @@
     }
 
     let E0, formül, deltaGerekli = secim === "yok";
-    let MIH = 0.25 * e;
+    const dogrulukSinifi = document.getElementById("dogrulukSinifi").value;
+    let MIH = hesaplaMIH(e, dogrulukSinifi, L0);
 
     if (deltaGerekli) {
       const dL0 = parseFloat(document.getElementById("dL0").value);
@@ -244,8 +255,34 @@ function hesaplaKoseYuk() {
   document.getElementById("koseSonuc").innerHTML = sonucHTML;
 }
 </script>
-  
+      
   <script>
+
+    function hesaplaMIH(e, dogrulukSinifi, yukKg) {
+  const yuk = yukKg / e;
+  if (dogrulukSinifi === "I") {
+    if (yuk <= 50000) return 0.5 * e;
+    if (yuk <= 200000) return 1.0 * e;
+    return 1.5 * e;
+  }
+  if (dogrulukSinifi === "II") {
+    if (yuk <= 5000) return 1.0 * e;
+    if (yuk <= 20000) return 2.0 * e;
+    return 3.0 * e;
+  }
+  if (dogrulukSinifi === "III") {
+    if (yuk <= 500) return 1.0 * e;
+    if (yuk <= 2000) return 2.0 * e;
+    return 3.0 * e;
+  }
+  if (dogrulukSinifi === "IV") {
+    if (yuk <= 50) return 1.0 * e;
+    if (yuk <= 200) return 2.0 * e;
+    return 3.0 * e;
+  }
+  return 0.25 * e; // fallback
+}
+    
     const db = firebase.firestore();
     let scaleMap = {}, ggtVarMi = null;
 
