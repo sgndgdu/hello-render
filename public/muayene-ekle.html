@@ -74,6 +74,16 @@
         <option value="IV">Sınıf IV</option>
         </select>
         </div>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+        <div>
+       <label class="text-sm text-gray-700">Minimum Kapasite (Min)</label>
+        <input type="number" id="minKapasite" class="input" placeholder="Örn: 20" />
+        </div>
+        <div>
+        <label class="text-sm text-gray-700">Maksimum Kapasite (Max)</label>
+        <input type="number" id="maxKapasite" class="input" placeholder="Örn: 30000" />
+        </div>
+        </div>
 
     <div id="testContainer"></div>
 
@@ -110,8 +120,12 @@
 <script>
   let sonE = null;
   let sonE0 = null;
+  let minKapasite = null;
+  let maxKapasite = null;
   
   function hesaplaSifirKontrol() {
+    minKapasite = parseFloat(document.getElementById("minKapasite").value);
+    maxKapasite = parseFloat(document.getElementById("maxKapasite").value);
     const L0 = parseFloat(document.getElementById("L0").value);
     const I0 = parseFloat(document.getElementById("I0").value);
     const e = parseFloat(document.getElementById("eDegeri").value);
